@@ -1,6 +1,0 @@
-source "E:/sdks/esp-idf/components/app_update/Kconfig.projbuild"
-source "E:/sdks/esp-idf/components/bootloader/Kconfig.projbuild"
-source "E:/sdks/esp-idf/components/esptool_py/Kconfig.projbuild"
-source "E:/sdks/esp-idf/components/partition_table/Kconfig.projbuild"
-source "E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/main/Kconfig.projbuild"
-source "E:/sdks/esp-idf/examples/common_components/protocol_examples_common/Kconfig.projbuild"
