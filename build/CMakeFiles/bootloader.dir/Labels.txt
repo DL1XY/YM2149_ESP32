@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/CMakeFiles/bootloader
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/CMakeFiles/bootloader.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/CMakeFiles/bootloader-complete.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+E:/eclipse/eclipse-workspace/ESP32_SndChipRestServer/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
