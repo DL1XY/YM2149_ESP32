@@ -382,8 +382,8 @@ static esp_err_t YM2149_setEnvelopeShapeHandler(httpd_req_t *req)
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
 }
+// ############### YM2149 END ###############
 
-// ########### YM2149 END ###############
 esp_err_t YM2149_start_rest_server(const char *base_path)
 {
     REST_CHECK(base_path, "wrong base path", err);

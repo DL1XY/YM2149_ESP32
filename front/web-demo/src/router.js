@@ -24,6 +24,11 @@ export default new Router({
       path: '/light',
       name: 'light',
       component: Light
+    },
+	{
+      path: '/ym2149',
+      name: 'ym2149',
+      component: YM2149
     }
   ]
 })
