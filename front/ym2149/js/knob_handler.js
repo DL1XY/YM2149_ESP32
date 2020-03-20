@@ -80,6 +80,7 @@ function channelFineKnob(channel) {
 	// Set properties.
 	knob.setProperty('angleStart', -0.75 * Math.PI);
 	knob.setProperty('angleEnd', 0.75 * Math.PI);
+	knob.setProperty('channel', getChannelId(channel));
 	knob.setProperty('colorFG', knobColor);
 	knob.setProperty('trackWidth', 0.4);
 	knob.setProperty('valMin', 0);
@@ -99,7 +100,11 @@ function channelFineKnob(channel) {
 	 * by the user.
 	 */
 	const listener = function(knob, value) {
-		console.log(value);
+		var url = baseUrl + "/channel/freq/fine";
+		postData(url, { channel: knob.getProperty('channel'), value: value })
+		  .then((data) => {
+		    console.log(data); // JSON data parsed by `response.json()` call
+		  });
 	};
 
 	knob.addListener(listener);
@@ -119,6 +124,7 @@ function channelLevelKnob(channel) {
 	// Set properties.
 	knob.setProperty('angleStart', -0.75 * Math.PI);
 	knob.setProperty('angleEnd', 0.75 * Math.PI);
+	knob.setProperty('channel', getChannelId(channel));
 	knob.setProperty('colorFG', knobColor);
 	knob.setProperty('trackWidth', 0.4);
 	knob.setProperty('valMin', 0);
@@ -138,7 +144,11 @@ function channelLevelKnob(channel) {
 	 * by the user.
 	 */
 	const listener = function(knob, value) {
-		console.log(value);
+		var url = baseUrl + "/channel/level";
+		postData(url, { channel: knob.getProperty('channel'), value: value })
+		  .then((data) => {
+		    console.log(data); // JSON data parsed by `response.json()` call
+		  });
 	};
 
 	knob.addListener(listener);
@@ -177,7 +187,11 @@ function envelopeFineKnob() {
 	 * by the user.
 	 */
 	const listener = function(knob, value) {
-		console.log(value);
+		var url = baseUrl + "/envelope/freq/fine";
+		postData(url, { value: value })
+		  .then((data) => {
+		    console.log(data); // JSON data parsed by `response.json()` call
+		  });
 	};
 
 	knob.addListener(listener);
@@ -216,7 +230,11 @@ function envelopeRoughKnob() {
 	 * by the user.
 	 */
 	const listener = function(knob, value) {
-		console.log(value);
+		var url = baseUrl + "/envelope/freq/rough";
+		postData(url, { value: value })
+		  .then((data) => {
+		    console.log(data); // JSON data parsed by `response.json()` call
+		  });
 	};
 
 	knob.addListener(listener);
@@ -255,7 +273,11 @@ function noiseFreqKnob() {
 	 * by the user.
 	 */
 	const listener = function(knob, value) {
-		console.log(value);
+		var url = baseUrl + "/noise/freq";
+		postData(url, { value: value })
+		  .then((data) => {
+		    console.log(data); // JSON data parsed by `response.json()` call
+		  });
 	};
 
 	knob.addListener(listener);

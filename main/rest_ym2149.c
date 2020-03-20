@@ -437,7 +437,7 @@ esp_err_t YM2149_start_rest_server(const char *base_path)
 	httpd_register_uri_handler(server, &channel_freq_rough_post_uri);
 
 	httpd_uri_t noise_freq_post_uri = {
-		.uri = "/api/v1/ym2149/noise_freq",
+		.uri = "/api/v1/ym2149/noise/freq",
 		.method = HTTP_POST,
 		.handler = YM2149_setNoiseFreqHandler,
 		.user_ctx = rest_context
@@ -477,7 +477,7 @@ esp_err_t YM2149_start_rest_server(const char *base_path)
 	httpd_register_uri_handler(server, &channel_level_post_uri);
 
 	httpd_uri_t env_freq_fine_post_uri = {
-		.uri = "/api/v1/ym2149/envelope/freq_fine",
+		.uri = "/api/v1/ym2149/envelope/freq/fine",
 		.method = HTTP_POST,
 		.handler = YM2149_setEnvelopeFreqFineHandler,
 		.user_ctx = rest_context
@@ -485,7 +485,7 @@ esp_err_t YM2149_start_rest_server(const char *base_path)
 	httpd_register_uri_handler(server, &env_freq_fine_post_uri);
 
 	httpd_uri_t env_freq_rough_post_uri = {
-		.uri = "/api/v1/ym2149/envelope/freq_rough",
+		.uri = "/api/v1/ym2149/envelope/freq/rough",
 		.method = HTTP_POST,
 		.handler = YM2149_setEnvelopeFreqRoughHandler,
 		.user_ctx = rest_context
