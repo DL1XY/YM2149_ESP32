@@ -920,6 +920,18 @@ CONFIG_SPIFFS_USE_MTIME=y
 # end of SPIFFS Configuration
 
 #
+# TinyUSB
+#
+
+#
+# Descriptor configuration
+#
+CONFIG_USB_DESC_CUSTOM_VID=0x1234
+CONFIG_USB_DESC_CUSTOM_PID=0x5678
+# end of Descriptor configuration
+# end of TinyUSB
+
+#
 # Unity unit testing library
 #
 CONFIG_UNITY_ENABLE_FLOAT=y
