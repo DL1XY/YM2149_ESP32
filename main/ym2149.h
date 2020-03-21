@@ -76,14 +76,14 @@
 #define YM2149_BC1_GPIO					16
 #define YM2149_BCDIR_GPIO				17
 
-#define YM2149_DA0_GPIO					26
-#define YM2149_DA1_GPIO					25
-#define YM2149_DA2_GPIO					33
-#define YM2149_DA3_GPIO					32
-#define YM2149_DA4_GPIO					35
-#define YM2149_DA5_GPIO					34
-#define YM2149_DA6_GPIO					39
-#define YM2149_DA7_GPIO					36
+#define YM2149_DA0_GPIO					13
+#define YM2149_DA1_GPIO					12
+#define YM2149_DA2_GPIO					14
+#define YM2149_DA3_GPIO					27
+#define YM2149_DA4_GPIO					26
+#define YM2149_DA5_GPIO					25
+#define YM2149_DA6_GPIO					33
+#define YM2149_DA7_GPIO					32
 
 
 struct ym2149 {
@@ -162,6 +162,10 @@ void YM2149_reset();
 // YM2149 general control functions
 void YM2149_setPwmClock();
 void YM2149_write();
+
+// YM2149 play functions
+void YM2149_playChannel (uint8_t* channels);
+void YM2149_stopChannel (uint8_t* channels);
 
 // YM2149 sound control functions
 void YM2149_setChannelFreqFine(uint8_t* channel, uint8_t* value);

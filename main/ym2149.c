@@ -111,10 +111,10 @@ void YM2149_loop()
 				gpio_set_level(YM2149_BC1_GPIO, 1);
 				gpio_set_level(YM2149_BCDIR_GPIO, 1);
 
-				gpio_set_level(YM2149_DA0_GPIO, (current_command.register_addr & (1 << 1)));
-				gpio_set_level(YM2149_DA1_GPIO, (current_command.register_addr & (1 << 2)));
-				gpio_set_level(YM2149_DA2_GPIO, (current_command.register_addr & (1 << 3)));
-				gpio_set_level(YM2149_DA3_GPIO, (current_command.register_addr & (1 << 4)));
+				gpio_set_level(YM2149_DA0_GPIO, (current_command.register_addr & (1 << 0)));
+				gpio_set_level(YM2149_DA1_GPIO, (current_command.register_addr & (1 << 1)));
+				gpio_set_level(YM2149_DA2_GPIO, (current_command.register_addr & (1 << 2)));
+				gpio_set_level(YM2149_DA3_GPIO, (current_command.register_addr & (1 << 3)));
 				gpio_set_level(YM2149_DA4_GPIO, 0);
 				gpio_set_level(YM2149_DA5_GPIO, 0);
 				gpio_set_level(YM2149_DA6_GPIO, 0);
@@ -125,14 +125,14 @@ void YM2149_loop()
 				gpio_set_level(YM2149_BC1_GPIO, 1);
 				gpio_set_level(YM2149_BCDIR_GPIO, 1);
 
-				gpio_set_level(YM2149_DA0_GPIO, (current_command.register_value & (1 << 1)));
-				gpio_set_level(YM2149_DA1_GPIO, (current_command.register_value & (1 << 2)));
-				gpio_set_level(YM2149_DA2_GPIO, (current_command.register_value & (1 << 3)));
-				gpio_set_level(YM2149_DA3_GPIO, (current_command.register_value & (1 << 4)));
-				gpio_set_level(YM2149_DA4_GPIO, (current_command.register_value & (1 << 5)));
-				gpio_set_level(YM2149_DA5_GPIO, (current_command.register_value & (1 << 6)));
-				gpio_set_level(YM2149_DA6_GPIO, (current_command.register_value & (1 << 7)));
-				gpio_set_level(YM2149_DA7_GPIO, (current_command.register_value & (1 << 8)));
+				gpio_set_level(YM2149_DA0_GPIO, (current_command.register_value & (1 << 0)));
+				gpio_set_level(YM2149_DA1_GPIO, (current_command.register_value & (1 << 1)));
+				gpio_set_level(YM2149_DA2_GPIO, (current_command.register_value & (1 << 2)));
+				gpio_set_level(YM2149_DA3_GPIO, (current_command.register_value & (1 << 3)));
+				gpio_set_level(YM2149_DA4_GPIO, (current_command.register_value & (1 << 4)));
+				gpio_set_level(YM2149_DA5_GPIO, (current_command.register_value & (1 << 5)));
+				gpio_set_level(YM2149_DA6_GPIO, (current_command.register_value & (1 << 6)));
+				gpio_set_level(YM2149_DA7_GPIO, (current_command.register_value & (1 << 7)));
 				currentCmdState = YM2149_COMMAND_STATE_IDLE;
 				break;
 			case YM2149_COMMAND_STATE_CLEANUP:
@@ -151,6 +151,17 @@ void YM2149_loop()
 void YM2149_reset()
 {
 	currentCmdState = YM2149_COMMAND_STATE_RESET;
+}
+void YM2149_playChannel (uint8_t* channel)
+{
+	ESP_LOGE(TAG, "playChannel(%d)", *channel);
+	YM2149_setChannelLevel(channel, 0xff);
+}
+
+void YM2149_stopChannel (uint8_t* channel)
+{
+	ESP_LOGE(TAG, "stopChannel(%d)", *channel);
+	YM2149_setChannelLevel(channel, 0);
 }
 
 void YM2149_setChannelFreqFine(uint8_t * channel, uint8_t* value)

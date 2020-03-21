@@ -394,6 +394,7 @@ esp_err_t YM2149_start_rest_server(const char *base_path)
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.uri_match_fn = httpd_uri_match_wildcard;
+    config.max_uri_handlers = 20;
 
     ESP_LOGI(YM2149_REST_TAG, "Starting HTTP Server");
     REST_CHECK(httpd_start(&server, &config) == ESP_OK, "Start server failed", err_start);
@@ -461,7 +462,7 @@ esp_err_t YM2149_start_rest_server(const char *base_path)
 	httpd_register_uri_handler(server, &channel_tone_post_uri);
 
 	httpd_uri_t channel_level_mode_post_uri = {
-		.uri = "/api/v1/ym2149/channel/level_mode",
+		.uri = "/api/v1/ym2149/channel/level/mode",
 		.method = HTTP_POST,
 		.handler = YM2149_setChannelLevelModeHandler,
 		.user_ctx = rest_context

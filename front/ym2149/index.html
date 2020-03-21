@@ -26,10 +26,11 @@
 				noiseFreqKnob();
 			}
 
-			document.addEventListener('DOMContentLoaded', ready, false);
+			document.addEventListener('DOMContentLoaded', ready, 0);
 			// ]]>
 	</script>
 	<link rel="stylesheet" type="text/css" href="css/global.css" media="screen" />
+	<link href="data:image/x-icon;base64,AAABAAEAEBAAAAAAAABoBQAAFgAAACgAAAAQAAAAIAAAAAEACAAAAAAAAAEAAAAAAAAAAAAAAAEAAAAAAAAAAAAAJiUoACAfIwAfHiEAJSQmAB4dHwBFREYAHx0iAB0cIAAfHiIAHx4gAB8dIwAgHyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAcLCQAAAAAAAAAAAAAACQkJCQkFAAAAAAAAAAAAAAEJCQkJCQYAAAAAAAAAAAAJCQkJCQkJAAAAAAAAAAAAAAkICgUFCQAAAAAAAAAAAAAAAAAACQkAAAAAAAAAAAAAAAAAAAkJAAAAAAAAAAAAAAAAAAAJCQAAAAAAAAAAAAAAAAAACQIAAAAAAAAAAAAAAAAAAAkCAAAEAAAAAAAAAAAAAAAJCQAACQAAAAAAAAAAAAAACQkACQkAAAAAAAAAAAAAAAkJAwoAAAAAAAAAAAAAAAAJCQUAAAAAAAAAAAAAAAAACQkAAAAAAAAAAAAAAAAAAAkJAAAAAAAAAOH/AADA/wAAwH8AAMB/AADgfwAA/n8AAP5/AAD+fwAA/n8AAP5vAAD+bwAA/k8AAP4fAAD+PwAA/n8AAP5/AAA=" rel="icon" type="image/x-icon" />
 	<title>YAMAHA YM2149</title>
 	</head>
 	<body>
@@ -104,9 +105,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_a_noise_switch" value="on" id="ch_a_noise_switch_on" checked onchange="channelNoiseSwitch('A', true)">
+															  <input type="radio" class="switch-input" name="ch_a_noise_switch" value="on" id="ch_a_noise_switch_on" checked onchange="channelNoiseSwitch('A', 1)">
 															  <label for="ch_a_noise_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_a_noise_switch" value="off" id="ch_a_noise_switch_off" onchange="channelNoiseSwitch('A', false)">
+															  <input type="radio" class="switch-input" name="ch_a_noise_switch" value="off" id="ch_a_noise_switch_off" onchange="channelNoiseSwitch('A', 0)">
 															  <label for="ch_a_noise_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -126,9 +127,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_a_tone_switch" value="on" id="ch_a_tone_switch_on" checked onchange="channelToneSwitch('A', true)">
+															  <input type="radio" class="switch-input" name="ch_a_tone_switch" value="on" id="ch_a_tone_switch_on" checked onchange="channelToneSwitch('A', 1)">
 															  <label for="ch_a_tone_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_a_tone_switch" value="off" id="ch_a_tone_switch_off" onchange="channelToneSwitch('A', false)">
+															  <input type="radio" class="switch-input" name="ch_a_tone_switch" value="off" id="ch_a_tone_switch_off" onchange="channelToneSwitch('A', 0)">
 															  <label for="ch_a_tone_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -150,9 +151,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_a_amp_type" value="lvl" id="ch_a_amp_type_lvl" checked onchange="channelAmpTypeSwitch('A', true)">
+															  <input type="radio" class="switch-input" name="ch_a_amp_type" value="lvl" id="ch_a_amp_type_lvl" checked onchange="channelAmpTypeSwitch('A', 1)">
 															  <label for="ch_a_amp_type_lvl" class="switch-label switch-label-off">LVL</label>
-															  <input type="radio" class="switch-input" name="ch_a_amp_type" value="env" id="ch_a_amp_type_env" onchange="channelAmpTypeSwitch('A', false)">
+															  <input type="radio" class="switch-input" name="ch_a_amp_type" value="env" id="ch_a_amp_type_env" onchange="channelAmpTypeSwitch('A', 0)">
 															  <label for="ch_a_amp_type_env" class="switch-label switch-label-on">ENV</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -172,9 +173,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_a_mute_switch" value="on" id="ch_a_mute_switch_on" onchange="channelMuteSwitch('A', true)">
+															  <input type="radio" class="switch-input" name="ch_a_mute_switch" value="on" id="ch_a_mute_switch_on" onchange="channelMuteSwitch('A', 1)">
 															  <label for="ch_a_mute_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_a_mute_switch" value="off" id="ch_a_mute_switch_off" checked onchange="channelMuteSwitch('A', false)">
+															  <input type="radio" class="switch-input" name="ch_a_mute_switch" value="off" id="ch_a_mute_switch_off" checked onchange="channelMuteSwitch('A', 0)">
 															  <label for="ch_a_mute_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -262,9 +263,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_b_noise_switch" value="on" id="ch_b_noise_switch_on" checked onchange="channelNoiseSwitch('B', true)">
+															  <input type="radio" class="switch-input" name="ch_b_noise_switch" value="on" id="ch_b_noise_switch_on" checked onchange="channelNoiseSwitch('B', 1)">
 															  <label for="ch_b_noise_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_b_noise_switch" value="off" id="ch_b_noise_switch_off" onchange="channelNoiseSwitch('B', false)">
+															  <input type="radio" class="switch-input" name="ch_b_noise_switch" value="off" id="ch_b_noise_switch_off" onchange="channelNoiseSwitch('B', 0)">
 															  <label for="ch_b_noise_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -284,9 +285,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_b_tone_switch" value="on" id="ch_b_tone_switch_on" checked onchange="channelToneSwitch('B', true)">
+															  <input type="radio" class="switch-input" name="ch_b_tone_switch" value="on" id="ch_b_tone_switch_on" checked onchange="channelToneSwitch('B', 1)">
 															  <label for="ch_b_tone_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_b_tone_switch" value="off" id="ch_b_tone_switch_off" onchange="channelToneSwitch('B', false)">
+															  <input type="radio" class="switch-input" name="ch_b_tone_switch" value="off" id="ch_b_tone_switch_off" onchange="channelToneSwitch('B', 0)">
 															  <label for="ch_b_tone_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -308,9 +309,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_b_amp_type" value="lvl" id="ch_b_amp_type_lvl" checked onchange="channelAmpTypeSwitch('B', true)">
+															  <input type="radio" class="switch-input" name="ch_b_amp_type" value="lvl" id="ch_b_amp_type_lvl" checked onchange="channelAmpTypeSwitch('B', 1)">
 															  <label for="ch_b_amp_type_lvl" class="switch-label switch-label-off">LVL</label>
-															  <input type="radio" class="switch-input" name="ch_b_amp_type" value="env" id="ch_b_amp_type_env" onchange="channelAmpTypeSwitch('B', false)">
+															  <input type="radio" class="switch-input" name="ch_b_amp_type" value="env" id="ch_b_amp_type_env" onchange="channelAmpTypeSwitch('B', 0)">
 															  <label for="ch_b_amp_type_env" class="switch-label switch-label-on">ENV</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -330,9 +331,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_b_mute_switch" value="on" id="ch_b_mute_switch_on" onchange="channelMuteSwitch('B', true)">
+															  <input type="radio" class="switch-input" name="ch_b_mute_switch" value="on" id="ch_b_mute_switch_on" onchange="channelMuteSwitch('B', 1)">
 															  <label for="ch_b_mute_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_b_mute_switch" value="off" id="ch_b_mute_switch_off" checked onchange="channelMuteSwitch('B', false)">
+															  <input type="radio" class="switch-input" name="ch_b_mute_switch" value="off" id="ch_b_mute_switch_off" checked onchange="channelMuteSwitch('B', 0)">
 															  <label for="ch_b_mute_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -420,9 +421,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_c_noise_switch" value="on" id="ch_c_noise_switch_on" checked onchange="channelNoiseSwitch('C', true)">
+															  <input type="radio" class="switch-input" name="ch_c_noise_switch" value="on" id="ch_c_noise_switch_on" checked onchange="channelNoiseSwitch('C', 1)">
 															  <label for="ch_c_noise_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_c_noise_switch" value="off" id="ch_c_noise_switch_off" onchange="channelNoiseSwitch('C', false)">
+															  <input type="radio" class="switch-input" name="ch_c_noise_switch" value="off" id="ch_c_noise_switch_off" onchange="channelNoiseSwitch('C', 0)">
 															  <label for="ch_c_noise_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -442,9 +443,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_c_tone_switch" value="on" id="ch_c_tone_switch_on" checked onchange="channelToneSwitch('C', true)">
+															  <input type="radio" class="switch-input" name="ch_c_tone_switch" value="on" id="ch_c_tone_switch_on" checked onchange="channelToneSwitch('C', 1)">
 															  <label for="ch_c_tone_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_c_tone_switch" value="off" id="ch_c_tone_switch_off" onchange="channelToneSwitch('C', false)">
+															  <input type="radio" class="switch-input" name="ch_c_tone_switch" value="off" id="ch_c_tone_switch_off" onchange="channelToneSwitch('C', 0)">
 															  <label for="ch_c_tone_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -466,9 +467,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_c_amp_type" value="lvl" id="ch_c_amp_type_lvl" checked onchange="channelAmpTypeSwitch('C', true)">
+															  <input type="radio" class="switch-input" name="ch_c_amp_type" value="lvl" id="ch_c_amp_type_lvl" checked onchange="channelAmpTypeSwitch('C', 1)">
 															  <label for="ch_c_amp_type_lvl" class="switch-label switch-label-off">LVL</label>
-															  <input type="radio" class="switch-input" name="ch_c_amp_type" value="env" id="ch_c_amp_type_env" onchange="channelAmpTypeSwitch('C', false)">
+															  <input type="radio" class="switch-input" name="ch_c_amp_type" value="env" id="ch_c_amp_type_env" onchange="channelAmpTypeSwitch('C', 0)">
 															  <label for="ch_c_amp_type_env" class="switch-label switch-label-on">ENV</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -488,9 +489,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="ch_c_mute_switch" value="on" id="ch_c_mute_switch_on" onchange="channelMuteSwitch('C', true)">
+															  <input type="radio" class="switch-input" name="ch_c_mute_switch" value="on" id="ch_c_mute_switch_on" onchange="channelMuteSwitch('C', 1)">
 															  <label for="ch_c_mute_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="ch_c_mute_switch" value="off" id="ch_c_mute_switch_off" checked onchange="channelMuteSwitch('C', false)">
+															  <input type="radio" class="switch-input" name="ch_c_mute_switch" value="off" id="ch_c_mute_switch_off" checked onchange="channelMuteSwitch('C', 0)">
 															  <label for="ch_c_mute_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -578,9 +579,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="env_cont_switch" value="on" id="env_cont_switch_on" checked onchange="envShapeSwitch('CONT', true)">
+															  <input type="radio" class="switch-input" name="env_cont_switch" value="on" id="env_cont_switch_on" checked onchange="envShapeSwitch('CONT', 1)">
 															  <label for="env_cont_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="env_cont_switch" value="off" id="env_cont_switch_off" onchange="envShapeSwitch('CONT', false)">
+															  <input type="radio" class="switch-input" name="env_cont_switch" value="off" id="env_cont_switch_off" onchange="envShapeSwitch('CONT', 0)">
 															  <label for="env_cont_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -600,9 +601,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="env_att_switch" value="on" id="env_att_switch_on" checked onchange="envShapeSwitch('ATT', true)">
+															  <input type="radio" class="switch-input" name="env_att_switch" value="on" id="env_att_switch_on" checked onchange="envShapeSwitch('ATT', 1)">
 															  <label for="env_att_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="env_att_switch_switch" value="off" id="env_att_switch_off" onchange="envShapeSwitch('ATT', false)">
+															  <input type="radio" class="switch-input" name="env_att_switch_switch" value="off" id="env_att_switch_off" onchange="envShapeSwitch('ATT', 0)">
 															  <label for="env_att_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -624,9 +625,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="env_alt_switch" value="lvl" id="env_alt_switch_on" checked onchange="envShapeSwitch('ALT', true)">
+															  <input type="radio" class="switch-input" name="env_alt_switch" value="lvl" id="env_alt_switch_on" checked onchange="envShapeSwitch('ALT', 1)">
 															  <label for="env_alt_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="env_alt_switch" value="env" id="env_alt_switch_off" onchange="envShapeSwitch('ALT', false)">
+															  <input type="radio" class="switch-input" name="env_alt_switch" value="env" id="env_alt_switch_off" onchange="envShapeSwitch('ALT', 0)">
 															  <label for="env_alt_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>
@@ -646,9 +647,9 @@
 													<td>
 														<div class="container">							
 															<div class="switch">
-															  <input type="radio" class="switch-input" name="env_hold_switch" value="on" id="env_hold_switch_on" checked onchange="envShapeSwitch('HOLD', true)">
+															  <input type="radio" class="switch-input" name="env_hold_switch" value="on" id="env_hold_switch_on" checked onchange="envShapeSwitch('HOLD', 1)">
 															  <label for="env_hold_switch_on" class="switch-label switch-label-off">ON</label>
-															  <input type="radio" class="switch-input" name="env_hold_switch" value="off" id="env_hold_switch_off" onchange="envShapeSwitch('HOLD', false)">
+															  <input type="radio" class="switch-input" name="env_hold_switch" value="off" id="env_hold_switch_off" onchange="envShapeSwitch('HOLD', 0)">
 															  <label for="env_hold_switch_off" class="switch-label switch-label-on">OFF</label>
 															  <span class="switch-selection"></span>
 															</div>

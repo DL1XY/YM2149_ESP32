@@ -120,7 +120,7 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 # Example Configuration
 #
-CONFIG_EXAMPLE_MDNS_HOST_NAME="esp-home"
+CONFIG_EXAMPLE_MDNS_HOST_NAME="ym2149"
 # CONFIG_EXAMPLE_WEB_DEPLOY_SEMIHOST is not set
 # CONFIG_EXAMPLE_WEB_DEPLOY_SD is not set
 CONFIG_EXAMPLE_WEB_DEPLOY_SF=y
@@ -918,18 +918,6 @@ CONFIG_SPIFFS_USE_MTIME=y
 # CONFIG_SPIFFS_TEST_VISUALISATION is not set
 # end of Debug Configuration
 # end of SPIFFS Configuration
-
-#
-# TinyUSB
-#
-
-#
-# Descriptor configuration
-#
-CONFIG_USB_DESC_CUSTOM_VID=0x1234
-CONFIG_USB_DESC_CUSTOM_PID=0x5678
-# end of Descriptor configuration
-# end of TinyUSB
 
 #
 # Unity unit testing library
