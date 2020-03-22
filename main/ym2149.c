@@ -13,13 +13,13 @@
 
 static const char *TAG = "YM2149";
 
-static QueueHandle_t cmd_queue;
+volatile QueueHandle_t cmd_queue;
 
-static struct ym2149 ym2149_configuration;
-static struct ym219_register ym219_status;
-static struct  ym2149_command current_command;
-static uint8_t currentCmdState;
-static uint8_t clockValue;
+volatile struct ym2149 ym2149_configuration;
+volatile struct ym219_register ym219_status;
+volatile struct  ym2149_command current_command;
+volatile uint8_t currentCmdState;
+volatile uint8_t clockValue;
 
 void YM2149_init()
 {
@@ -44,6 +44,16 @@ void YM2149_init()
 	 // Set GPIO defaults
 	 gpio_set_level(YM2149_BC1_GPIO, 0);
 	 gpio_set_level(YM2149_BCDIR_GPIO, 0);
+	 gpio_set_level(YM2149_RESET_GPIO, 0);
+
+	 gpio_set_level(YM2149_DA0_GPIO, 1);
+	 gpio_set_level(YM2149_DA1_GPIO, 1);
+	 gpio_set_level(YM2149_DA2_GPIO, 1);
+	 gpio_set_level(YM2149_DA3_GPIO, 1);
+	 gpio_set_level(YM2149_DA4_GPIO, 1);
+	 gpio_set_level(YM2149_DA5_GPIO, 1);
+	 gpio_set_level(YM2149_DA6_GPIO, 1);
+	 gpio_set_level(YM2149_DA7_GPIO, 1);
 
 	 // Init PWM clock
 	 YM2149_init_pwm();
@@ -55,16 +65,37 @@ void YM2149_init()
 	 // Create Task
 	 clockValue = YM2149_CLOCK_DIVIDER;
 	 TaskHandle_t xHandle = NULL;
-	 xTaskCreate( YM2149_loop, "YM2149_Task", 10000, NULL, 1, &xHandle );
+	 xTaskCreate( &YM2149_loop, "YM2149_Task", 10000, NULL, 1, xHandle );
+	 /*
 	 if( xHandle != NULL )
 	 {
 	  vTaskDelete( xHandle );
 	 }
+	 */
 
+	 xTaskCreate(&blinky, "blinky", 512,NULL,5,NULL );
+	 debug();
+
+}
+void blinky(void *pvParameter)
+{
+
+    gpio_pad_select_gpio(YM2149_RESET_GPIO);
+    /* Set the GPIO as a push/pull output */
+    gpio_set_direction(YM2149_RESET_GPIO, GPIO_MODE_OUTPUT);
+    while(1) {
+        /* Blink off (output low) */
+        gpio_set_level(YM2149_RESET_GPIO, 0);
+        vTaskDelay(1000 / portTICK_RATE_MS);
+        /* Blink on (output high) */
+        gpio_set_level(YM2149_RESET_GPIO, 1);
+        vTaskDelay(1000 / portTICK_RATE_MS);
+    }
 }
 
 void YM2149_init_pwm()
 {
+	ESP_LOGE(TAG, "Init YM2149 PWM");
 	ledc_timer_config_t ledc_timer = {
 	    .speed_mode = LEDC_HIGH_SPEED_MODE,
 	    .timer_num  = LEDC_TIMER_0,
@@ -82,20 +113,22 @@ void YM2149_init_pwm()
 	ledc_timer_config(&ledc_timer);
 	ledc_channel_config(&ledc_channel);
 }
-void YM2149_loop()
+
+void YM2149_loop(void *pvParameter)
 {
 
 	while(1)
 	{
 		if (clockValue % YM2149_CLOCK_DIVIDER == 0)
 		{
+
 			clockValue = 0;
 			switch (currentCmdState)
 			{
 			case YM2149_COMMAND_STATE_INIT:
 				gpio_set_level(YM2149_BC1_GPIO, 0);
 				gpio_set_level(YM2149_BCDIR_GPIO, 0);
-				gpio_set_level(YM2149_RESET_GPIO, 1);
+				gpio_set_level(YM2149_RESET_GPIO, 0);
 				currentCmdState = YM2149_COMMAND_STATE_IDLE;
 				break;
 			case YM2149_COMMAND_STATE_IDLE:
@@ -144,6 +177,7 @@ void YM2149_loop()
 				break;
 			}
 		}
+		vTaskDelay(1000 / portTICK_RATE_MS);
 		++clockValue;
 	}
 }
@@ -386,3 +420,20 @@ void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value)
 	 ESP_LOGE(TAG, "setEnvelopeShape CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
 }
 
+void debug()
+{
+	ESP_LOGE(TAG, "DEBUG GPIO States");
+	ESP_LOGE(TAG, "YM2149_BC1_GPIO: %d", gpio_get_level(YM2149_BC1_GPIO));
+	ESP_LOGE(TAG, "YM2149_BCDIR_GPIO: %d", gpio_get_level(YM2149_BCDIR_GPIO));
+	ESP_LOGE(TAG, "YM2149_RESET_GPIO: %d", gpio_get_level(YM2149_RESET_GPIO));
+
+	ESP_LOGE(TAG, "YM2149_DA0_GPIO: %d", gpio_get_level(YM2149_DA0_GPIO));
+	ESP_LOGE(TAG, "YM2149_DA1_GPIO: %d", gpio_get_level(YM2149_DA1_GPIO));
+	ESP_LOGE(TAG, "YM2149_DA2_GPIO: %d", gpio_get_level(YM2149_DA2_GPIO));
+	ESP_LOGE(TAG, "YM2149_DA3_GPIO: %d", gpio_get_level(YM2149_DA3_GPIO));
+	ESP_LOGE(TAG, "YM2149_DA4_GPIO: %d", gpio_get_level(YM2149_DA4_GPIO));
+	ESP_LOGE(TAG, "YM2149_DA5_GPIO: %d", gpio_get_level(YM2149_DA5_GPIO));
+	ESP_LOGE(TAG, "YM2149_DA6_GPIO: %d", gpio_get_level(YM2149_DA6_GPIO));
+	ESP_LOGE(TAG, "YM2149_DA7_GPIO: %d", gpio_get_level(YM2149_DA7_GPIO));
+
+}

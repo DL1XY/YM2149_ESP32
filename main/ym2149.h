@@ -71,15 +71,15 @@
 #define YM2149_COMMAND_STATE_INIT					7
 
 // ESP32 GPIO
-#define YM2149_RESET_GPIO				15
+#define YM2149_RESET_GPIO				4
 #define YM2149_CLOCK_GPIO				2
-#define YM2149_BC1_GPIO					16
-#define YM2149_BCDIR_GPIO				17
+#define YM2149_BC1_GPIO					19
+#define YM2149_BCDIR_GPIO				21
 
 #define YM2149_DA0_GPIO					13
 #define YM2149_DA1_GPIO					12
-#define YM2149_DA2_GPIO					14
-#define YM2149_DA3_GPIO					27
+#define YM2149_DA2_GPIO					22
+#define YM2149_DA3_GPIO					23
 #define YM2149_DA4_GPIO					26
 #define YM2149_DA5_GPIO					25
 #define YM2149_DA6_GPIO					33
@@ -156,7 +156,7 @@ struct ym2149_command
 // common functions
 void YM2149_init();
 void YM2149_init_pwm();
-void YM2149_loop();
+void YM2149_loop(void *pvParameter);
 void YM2149_reset();
 
 // YM2149 general control functions
@@ -179,5 +179,6 @@ void YM2149_setEnvelopeFreqFine(uint8_t* value);
 void YM2149_setEnvelopeFreqRough(uint8_t* value);
 void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value);
 
-
+void blinky(void *pvParameter);
+void debug();
 #endif /* MAIN_YM2149_H_ */
