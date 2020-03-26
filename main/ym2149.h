@@ -73,20 +73,20 @@
 // ESP32 GPIO
 #define YM2149_RESET_GPIO				4
 #define YM2149_CLOCK_GPIO				2
-#define YM2149_BC1_GPIO					22
-#define YM2149_BCDIR_GPIO				23
+#define YM2149_BC1_GPIO					12
+#define YM2149_BCDIR_GPIO				13
 
 #define YM2149_DA0_GPIO					16
 #define YM2149_DA1_GPIO					17
 #define YM2149_DA2_GPIO					5
-#define YM2149_DA3_GPIO					18
+#define YM2149_DA3_GPIO					21
 #define YM2149_DA4_GPIO					27
 #define YM2149_DA5_GPIO					26
 #define YM2149_DA6_GPIO					25
 #define YM2149_DA7_GPIO					33
 
 
-struct ym2149 {
+struct __attribute((__packed__)) ym2149 {
 	uint8_t channel_a_freq_fine:8;
 	uint8_t channel_a_freq_rough:4;
 	uint8_t channel_b_freq_fine:8;
@@ -119,10 +119,11 @@ struct ym2149 {
 	uint8_t envelope_shape_att:1;
 	uint8_t envelope_shape_alt:1;
 	uint8_t envelope_shape_hold:1;
+	uint8_t eof:1; // HACK, otheriwse envelope_shape_hold would be 0
 
 };
 
-struct ym219_register
+struct __attribute((__packed__)) ym219_register
 {
 	uint8_t reg_0:8;
 	uint8_t reg_1:8;
@@ -143,14 +144,17 @@ struct ym219_register
 
 };
 
-struct ym2149_command
+
+struct __attribute((__packed__)) ym2149_command
 {
-	char command_id;
-	char register_addr;
-	char bit_length;
-	char bit_start;
-	char register_value;
+	uint8_t command_id;
+	uint8_t register_addr;
+	uint8_t register_value;
+	uint8_t bit_start;
+	uint8_t bit_length;
+	uint8_t eof;
 };
+
 
 
 // common functions
@@ -181,4 +185,6 @@ void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value);
 
 void blinky(void *pvParameter);
 void debug();
+void debugCmd();
+
 #endif /* MAIN_YM2149_H_ */

@@ -77,9 +77,10 @@ static esp_err_t YM2149_setChannelFreqFineHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
     uint8_t channel = (uint8_t)cJSON_GetObjectItem(root, "channel")->valueint;
     uint8_t value = (uint8_t)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setChannelFreqFine(&channel, &value);
 
     ESP_LOGI(YM2149_REST_TAG, "setChannelFreqFineHandler channel:%d value:%d", channel, value);
+    YM2149_setChannelFreqFine(&channel, &value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -110,9 +111,10 @@ static esp_err_t YM2149_setChannelFreqRoughHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
     uint8_t channel = (uint8_t)cJSON_GetObjectItem(root, "channel")->valueint;
     uint8_t value = (uint8_t)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setChannelFreqRough (&channel, &value);
 
     ESP_LOGI(YM2149_REST_TAG, "setChannelFreqRoughHandler channel:%d value:%d", channel, value);
+    YM2149_setChannelFreqRough (&channel, &value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -143,9 +145,10 @@ static esp_err_t YM2149_setNoiseFreqHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
 
     uint8_t value = (uint8_t)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setNoiseFreq(&value);
 
     ESP_LOGI(YM2149_REST_TAG, "YM2149_setNoiseFreqHandler value:%d", value);
+    YM2149_setNoiseFreq(&value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -177,9 +180,10 @@ static esp_err_t YM2149_setChannelNoiseHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
     uint8_t channel = (uint8_t)cJSON_GetObjectItem(root, "channel")->valueint;
     bool value = (bool)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setChannelNoise (&channel, &value);
 
     ESP_LOGI(YM2149_REST_TAG, "setChannelNoiseHandler channel:%d value:%d", channel, value);
+    YM2149_setChannelNoise (&channel, &value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -210,9 +214,10 @@ static esp_err_t YM2149_setChannelToneHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
     uint8_t channel = (uint8_t)cJSON_GetObjectItem(root, "channel")->valueint;
     bool value = (bool)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setChannelTone (&channel, &value);
 
     ESP_LOGI(YM2149_REST_TAG, "YM2149_setChannelToneHandler channel:%d value:%d", channel, value);
+    YM2149_setChannelTone (&channel, &value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -243,9 +248,10 @@ static esp_err_t YM2149_setChannelLevelModeHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
     uint8_t channel = (uint8_t)cJSON_GetObjectItem(root, "channel")->valueint;
     bool value = (bool)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setChannelLevelMode (&channel, &value);
 
     ESP_LOGI(YM2149_REST_TAG, "YM2149_setChannelLevelModeHandler channel:%d value:%d", channel, value);
+    YM2149_setChannelLevelMode (&channel, &value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -276,9 +282,10 @@ static esp_err_t YM2149_setChannelLevelHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
     uint8_t channel = (uint8_t)cJSON_GetObjectItem(root, "channel")->valueint;
     uint8_t value = (uint8_t)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setChannelLevel (&channel, &value);
 
     ESP_LOGI(YM2149_REST_TAG, "setChannelLevelHandler channel:%d value:%d", channel, value);
+    YM2149_setChannelLevel (&channel, &value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -308,9 +315,10 @@ static esp_err_t YM2149_setEnvelopeFreqFineHandler(httpd_req_t *req)
 
     cJSON *root = cJSON_Parse(buf);
     uint8_t value = (uint8_t)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setEnvelopeFreqFine (&value);
 
     ESP_LOGI(YM2149_REST_TAG, "setEnvelopeFreqFineHandler value:%d", value);
+    YM2149_setEnvelopeFreqFine (&value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -340,9 +348,10 @@ static esp_err_t YM2149_setEnvelopeFreqRoughHandler(httpd_req_t *req)
 
     cJSON *root = cJSON_Parse(buf);
     uint8_t value = (uint8_t)cJSON_GetObjectItem(root, "value")->valueint;
-    YM2149_setEnvelopeFreqRough (&value);
 
     ESP_LOGI(YM2149_REST_TAG, "setEnvelopeFreqRoughHandler value:%d", value);
+    YM2149_setEnvelopeFreqRough (&value);
+
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;
@@ -375,9 +384,9 @@ static esp_err_t YM2149_setEnvelopeShapeHandler(httpd_req_t *req)
     cJSON *root = cJSON_Parse(buf);
     uint8_t env_shape_type = (uint8_t)cJSON_GetObjectItem(root, "env_shape_type")->valueint;
     bool value = (bool)cJSON_GetObjectItem(root, "value")->valueint;
+    ESP_LOGI(YM2149_REST_TAG, "setEnvelopeShapeHandler env_shape_type:%d value:%d", env_shape_type, value);
     YM2149_setEnvelopeShape (&env_shape_type, &value);
 
-    ESP_LOGI(YM2149_REST_TAG, "setEnvelopeShapeHandler env_shape_type:%d value:%d", env_shape_type, value);
     cJSON_Delete(root);
     httpd_resp_sendstr(req, "Post control value successfully");
     return ESP_OK;

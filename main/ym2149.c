@@ -10,14 +10,15 @@
 #include "esp_log.h"
 #include "driver/ledc.h"
 #include "esp_err.h"
-
+#include <string.h>
 static const char *TAG = "YM2149";
 
-volatile QueueHandle_t cmd_queue;
+QueueHandle_t cmd_queue;
+
 
 volatile struct ym2149 ym2149_configuration;
 volatile struct ym219_register ym219_status;
-struct  ym2149_command current_command;
+struct ym2149_command current_command;
 uint8_t currentCmdState;
 uint8_t lastCmdState;
 uint8_t clockValue;
@@ -26,21 +27,32 @@ void YM2149_init()
 {
 	 ESP_LOGE(TAG, "Init YM2149");
 
-	 // Init Control GPIOs
-	 gpio_set_direction(YM2149_RESET_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_CLOCK_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_BC1_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_BCDIR_GPIO, GPIO_MODE_OUTPUT);
+	 gpio_config_t io_conf;
+	 //disable interrupt
+	 io_conf.intr_type = GPIO_PIN_INTR_DISABLE;
+	 //set as output mode
+	 io_conf.mode = GPIO_MODE_OUTPUT;
+	 //bit mask of the pins that you want to set,e.g.GPIO18/19
+	 io_conf.pin_bit_mask =
+			 ((1ULL<<YM2149_RESET_GPIO)	|
+			 (1ULL<<YM2149_CLOCK_GPIO) 	|
+			 (1ULL<<YM2149_BC1_GPIO)	|
+			 (1ULL<<YM2149_BCDIR_GPIO)	|
+			 (1ULL<<YM2149_DA0_GPIO)	|
+			 (1ULL<<YM2149_DA1_GPIO)	|
+		 	 (1ULL<<YM2149_DA2_GPIO)	|
+		 	 (1ULL<<YM2149_DA3_GPIO)	|
+		 	 (1ULL<<YM2149_DA4_GPIO)	|
+		 	 (1ULL<<YM2149_DA5_GPIO)	|
+		 	 (1ULL<<YM2149_DA6_GPIO)	|
+		 	 (1ULL<<YM2149_DA7_GPIO));
+	 //disable pull-down mode
+	 io_conf.pull_down_en = 0;
+	 //disable pull-up mode
+	 io_conf.pull_up_en = 0;
+	 //configure GPIO with the given settings
+	 gpio_config(&io_conf);
 
-	 // Init Data GPIOs
-	 gpio_set_direction(YM2149_DA0_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_DA1_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_DA2_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_DA3_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_DA4_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_DA5_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_DA6_GPIO, GPIO_MODE_OUTPUT);
-	 gpio_set_direction(YM2149_DA7_GPIO, GPIO_MODE_OUTPUT);
 
 	 // Set GPIO defaults
 	 gpio_set_level(YM2149_BC1_GPIO, 0);
@@ -57,7 +69,7 @@ void YM2149_init()
 	 gpio_set_level(YM2149_DA7_GPIO, 0);
 
 	 // Init PWM clock
-	 YM2149_init_pwm();
+	 //YM2149_init_pwm();
 
 	 // Init Command Queue
 	 cmd_queue = xQueueCreate (16, sizeof (struct ym2149_command *));
@@ -117,13 +129,10 @@ void YM2149_init_pwm()
 
 void YM2149_loop(void *pvParameter)
 {
-
 	while(1)
 	{
-
 		if (clockValue % YM2149_CLOCK_DIVIDER == 0)
 		{
-
 			clockValue = 0;
 			switch (currentCmdState)
 			{
@@ -149,7 +158,7 @@ void YM2149_loop(void *pvParameter)
 				if (uxQueueMessagesWaiting(cmd_queue) > 0)
 				{
 					xQueueReceive (cmd_queue, &current_command, 0 );
-
+					debugCmd();
 					currentCmdState = YM2149_COMMAND_STATE_ADDR_MODE;
 				}
 			}
@@ -157,7 +166,7 @@ void YM2149_loop(void *pvParameter)
 			case YM2149_COMMAND_STATE_ADDR_MODE:
 			{
 				if (lastCmdState != YM2149_COMMAND_STATE_ADDR_MODE)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_ADDR_MODE");
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_ADDR_MODE VALUE:%d", current_command.register_addr);
 				gpio_set_level(YM2149_BC1_GPIO, 1);
 				gpio_set_level(YM2149_BCDIR_GPIO, 1);
 
@@ -176,7 +185,7 @@ void YM2149_loop(void *pvParameter)
 			case YM2149_COMMAND_STATE_WRITE_MODE:
 			{
 				if (lastCmdState != YM2149_COMMAND_STATE_WRITE_MODE)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_WRITE_MODE");
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_WRITE_MODE VALUE: %d", current_command.register_value);
 				gpio_set_level(YM2149_BC1_GPIO, 1);
 				gpio_set_level(YM2149_BCDIR_GPIO, 1);
 
@@ -210,7 +219,7 @@ void YM2149_loop(void *pvParameter)
 				break;
 			}
 		}
-		vTaskDelay(1000 / portTICK_RATE_MS);
+		vTaskDelay(500 / portTICK_RATE_MS);
 		++clockValue;
 	}
 }
@@ -232,7 +241,7 @@ void YM2149_stopChannel (uint8_t* channel)
 	YM2149_setChannelLevel(channel, 0);
 }
 
-void YM2149_setChannelFreqFine(uint8_t * channel, uint8_t* value)
+void YM2149_setChannelFreqFine(uint8_t* channel, uint8_t* value)
 {
 	 ESP_LOGE(TAG, "setChannelFreqFine(%d, %d)", *channel, *value);
 	 struct ym2149_command cmd;
@@ -253,6 +262,7 @@ void YM2149_setChannelFreqFine(uint8_t * channel, uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
+	 cmd.eof = 0xFF;
 
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -281,6 +291,7 @@ void YM2149_setChannelFreqRough(uint8_t* channel, uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 4;
 	 cmd.bit_start = 0;
+	 cmd.eof = 0xFF;
 
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -296,7 +307,7 @@ void YM2149_setNoiseFreq(uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 5;
 	 cmd.bit_start = 0;
-
+	 cmd.eof = 0xFF;
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setNoiseFreq CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
@@ -322,6 +333,7 @@ void YM2149_setChannelNoise(uint8_t* channel, bool* value)
 		 break;
 	 }
 	 cmd.bit_length = 1;
+	 cmd.eof = 0xFF;
 
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -348,6 +360,7 @@ void YM2149_setChannelTone(uint8_t* channel, bool* value)
 		break;
 	}
 	cmd.bit_length = 1;
+	cmd.eof = 0xFF;
 
 	xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -376,6 +389,7 @@ void YM2149_setChannelLevelMode(uint8_t* channel, bool* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 1;
 	 cmd.bit_start = YM2149_LEVEL_MODE_BIT;
+	 cmd.eof = 0xFF;
 
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -404,6 +418,7 @@ void YM2149_setChannelLevel(uint8_t* channel, uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 4;
 	 cmd.bit_start = 0;
+	 cmd.eof = 0xFF;
 
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -419,6 +434,7 @@ void YM2149_setEnvelopeFreqFine(uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
+	 cmd.eof = 0xFF;
 
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -434,6 +450,7 @@ void YM2149_setEnvelopeFreqRough(uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
+	 cmd.eof = 0xFF;
 
 	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
@@ -442,7 +459,8 @@ void YM2149_setEnvelopeFreqRough(uint8_t* value)
 
 void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value)
 {
-	 ESP_LOGE(TAG, "setEnvelopeShape(%d, %d)", *env_shape_type, *value); struct ym2149_command cmd;
+	 ESP_LOGE(TAG, "setEnvelopeShape(%d, %d)", *env_shape_type, *value);
+	 struct ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_ENVELOPE_SHAPE;
 	 cmd.register_addr = YM2149_REG_D_ADDR;
 	 cmd.register_value = *value;
@@ -456,6 +474,7 @@ void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value)
 
 void debug()
 {
+	ESP_LOGE(TAG, "\n");
 	ESP_LOGE(TAG, "DEBUG GPIO States");
 	ESP_LOGE(TAG, "YM2149_BC1_GPIO: %d", gpio_get_level(YM2149_BC1_GPIO));
 	ESP_LOGE(TAG, "YM2149_BCDIR_GPIO: %d", gpio_get_level(YM2149_BCDIR_GPIO));
@@ -469,5 +488,18 @@ void debug()
 	ESP_LOGE(TAG, "YM2149_DA5_GPIO: %d", gpio_get_level(YM2149_DA5_GPIO));
 	ESP_LOGE(TAG, "YM2149_DA6_GPIO: %d", gpio_get_level(YM2149_DA6_GPIO));
 	ESP_LOGE(TAG, "YM2149_DA7_GPIO: %d", gpio_get_level(YM2149_DA7_GPIO));
+	ESP_LOGE(TAG, "\n");
+}
 
+void debugCmd()
+{
+	ESP_LOGE(TAG, "\n");
+	ESP_LOGE(TAG, "DEBUG CURRENT COMMAND");
+	ESP_LOGE(TAG, "command_id: %d", current_command.command_id);
+	ESP_LOGE(TAG, "register_addr: %d", current_command.register_addr);
+	ESP_LOGE(TAG, "register_value: %d", current_command.register_value);
+	ESP_LOGE(TAG, "bit_start: %d", current_command.bit_start);
+	ESP_LOGE(TAG, "bit_length: %d", current_command.bit_length);
+	ESP_LOGE(TAG, "eof: %d", current_command.eof);
+	ESP_LOGE(TAG, "\n");
 }
