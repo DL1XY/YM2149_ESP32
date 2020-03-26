@@ -17,9 +17,10 @@ volatile QueueHandle_t cmd_queue;
 
 volatile struct ym2149 ym2149_configuration;
 volatile struct ym219_register ym219_status;
-volatile struct  ym2149_command current_command;
-volatile uint8_t currentCmdState;
-volatile uint8_t clockValue;
+struct  ym2149_command current_command;
+uint8_t currentCmdState;
+uint8_t lastCmdState;
+uint8_t clockValue;
 
 void YM2149_init()
 {
@@ -46,14 +47,14 @@ void YM2149_init()
 	 gpio_set_level(YM2149_BCDIR_GPIO, 0);
 	 gpio_set_level(YM2149_RESET_GPIO, 0);
 
-	 gpio_set_level(YM2149_DA0_GPIO, 1);
-	 gpio_set_level(YM2149_DA1_GPIO, 1);
-	 gpio_set_level(YM2149_DA2_GPIO, 1);
-	 gpio_set_level(YM2149_DA3_GPIO, 1);
-	 gpio_set_level(YM2149_DA4_GPIO, 1);
-	 gpio_set_level(YM2149_DA5_GPIO, 1);
-	 gpio_set_level(YM2149_DA6_GPIO, 1);
-	 gpio_set_level(YM2149_DA7_GPIO, 1);
+	 gpio_set_level(YM2149_DA0_GPIO, 0);
+	 gpio_set_level(YM2149_DA1_GPIO, 0);
+	 gpio_set_level(YM2149_DA2_GPIO, 0);
+	 gpio_set_level(YM2149_DA3_GPIO, 0);
+	 gpio_set_level(YM2149_DA4_GPIO, 0);
+	 gpio_set_level(YM2149_DA5_GPIO, 0);
+	 gpio_set_level(YM2149_DA6_GPIO, 0);
+	 gpio_set_level(YM2149_DA7_GPIO, 0);
 
 	 // Init PWM clock
 	 YM2149_init_pwm();
@@ -64,8 +65,8 @@ void YM2149_init()
 
 	 // Create Task
 	 clockValue = YM2149_CLOCK_DIVIDER;
-	 TaskHandle_t xHandle = NULL;
-	 xTaskCreate( &YM2149_loop, "YM2149_Task", 10000, NULL, 1, xHandle );
+	 //TaskHandle_t xHandle = NULL;
+	 xTaskCreate( &YM2149_loop, "YM2149_Task", 20000, NULL, 1, NULL );
 	 /*
 	 if( xHandle != NULL )
 	 {
@@ -73,13 +74,13 @@ void YM2149_init()
 	 }
 	 */
 
-	 xTaskCreate(&blinky, "blinky", 512,NULL,5,NULL );
+	// xTaskCreate(&blinky, "blinky", 10000,NULL,5,NULL );
 	 debug();
 
 }
 void blinky(void *pvParameter)
 {
-
+	ESP_LOGE(TAG, "BLINKY");
     gpio_pad_select_gpio(YM2149_RESET_GPIO);
     /* Set the GPIO as a push/pull output */
     gpio_set_direction(YM2149_RESET_GPIO, GPIO_MODE_OUTPUT);
@@ -119,6 +120,7 @@ void YM2149_loop(void *pvParameter)
 
 	while(1)
 	{
+
 		if (clockValue % YM2149_CLOCK_DIVIDER == 0)
 		{
 
@@ -126,21 +128,36 @@ void YM2149_loop(void *pvParameter)
 			switch (currentCmdState)
 			{
 			case YM2149_COMMAND_STATE_INIT:
+			{
+				if (lastCmdState != YM2149_COMMAND_STATE_INIT)
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_INIT");
 				gpio_set_level(YM2149_BC1_GPIO, 0);
 				gpio_set_level(YM2149_BCDIR_GPIO, 0);
 				gpio_set_level(YM2149_RESET_GPIO, 0);
+				lastCmdState = currentCmdState;
 				currentCmdState = YM2149_COMMAND_STATE_IDLE;
+
+			}
 				break;
 			case YM2149_COMMAND_STATE_IDLE:
+			{
+				if (lastCmdState != YM2149_COMMAND_STATE_IDLE)
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_IDLE");
 				gpio_set_level(YM2149_BC1_GPIO, 0);
 				gpio_set_level(YM2149_BCDIR_GPIO, 0);
+				lastCmdState = currentCmdState;
 				if (uxQueueMessagesWaiting(cmd_queue) > 0)
 				{
 					xQueueReceive (cmd_queue, &current_command, 0 );
+
 					currentCmdState = YM2149_COMMAND_STATE_ADDR_MODE;
 				}
+			}
 				break;
 			case YM2149_COMMAND_STATE_ADDR_MODE:
+			{
+				if (lastCmdState != YM2149_COMMAND_STATE_ADDR_MODE)
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_ADDR_MODE");
 				gpio_set_level(YM2149_BC1_GPIO, 1);
 				gpio_set_level(YM2149_BCDIR_GPIO, 1);
 
@@ -152,9 +169,14 @@ void YM2149_loop(void *pvParameter)
 				gpio_set_level(YM2149_DA5_GPIO, 0);
 				gpio_set_level(YM2149_DA6_GPIO, 0);
 				gpio_set_level(YM2149_DA7_GPIO, 0);
+				lastCmdState = currentCmdState;
 				currentCmdState = YM2149_COMMAND_STATE_WRITE_MODE;
+			}
 				break;
 			case YM2149_COMMAND_STATE_WRITE_MODE:
+			{
+				if (lastCmdState != YM2149_COMMAND_STATE_WRITE_MODE)
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_WRITE_MODE");
 				gpio_set_level(YM2149_BC1_GPIO, 1);
 				gpio_set_level(YM2149_BCDIR_GPIO, 1);
 
@@ -166,14 +188,25 @@ void YM2149_loop(void *pvParameter)
 				gpio_set_level(YM2149_DA5_GPIO, (current_command.register_value & (1 << 5)));
 				gpio_set_level(YM2149_DA6_GPIO, (current_command.register_value & (1 << 6)));
 				gpio_set_level(YM2149_DA7_GPIO, (current_command.register_value & (1 << 7)));
+				lastCmdState = currentCmdState;
 				currentCmdState = YM2149_COMMAND_STATE_IDLE;
+			}
 				break;
 			case YM2149_COMMAND_STATE_CLEANUP:
+			{
+				if (lastCmdState != YM2149_COMMAND_STATE_CLEANUP)
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_CLEANUP");
+			}
 				break;
 			case YM2149_COMMAND_STATE_RESET:
-					gpio_set_level(YM2149_RESET_GPIO, 0);
-					xQueueReset(cmd_queue);
-					currentCmdState = YM2149_COMMAND_STATE_INIT;
+			{
+				if (lastCmdState != YM2149_COMMAND_STATE_RESET)
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_RESET");
+				gpio_set_level(YM2149_RESET_GPIO, 0);
+				xQueueReset(cmd_queue);
+				lastCmdState = currentCmdState;
+				currentCmdState = YM2149_COMMAND_STATE_INIT;
+			}
 				break;
 			}
 		}
@@ -184,12 +217,13 @@ void YM2149_loop(void *pvParameter)
 
 void YM2149_reset()
 {
-	currentCmdState = YM2149_COMMAND_STATE_RESET;
+	//currentCmdState = YM2149_COMMAND_STATE_RESET;
 }
 void YM2149_playChannel (uint8_t* channel)
 {
 	ESP_LOGE(TAG, "playChannel(%d)", *channel);
-	YM2149_setChannelLevel(channel, 0xff);
+	uint8_t full= 0xff;
+	YM2149_setChannelLevel(channel, &full);
 }
 
 void YM2149_stopChannel (uint8_t* channel)
