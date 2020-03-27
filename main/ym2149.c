@@ -10,22 +10,22 @@
 #include "esp_log.h"
 #include "driver/ledc.h"
 #include "esp_err.h"
-#include <string.h>
+#include "spi_74hc595.h"
 static const char *TAG = "YM2149";
 
 QueueHandle_t cmd_queue;
 
 
-volatile struct ym2149 ym2149_configuration;
-volatile struct ym219_register ym219_status;
-struct ym2149_command current_command;
+volatile ym2149 ym2149_configuration;
+volatile ym219_register ym219_status;
+ym2149_command current_command;
 uint8_t currentCmdState;
 uint8_t lastCmdState;
 uint8_t clockValue;
 
 void YM2149_init()
 {
-	 ESP_LOGE(TAG, "Init YM2149");
+	 ESP_LOGE(TAG, "Init YM2149 struct:%d", sizeof(struct ym2149_command));
 
 	 gpio_config_t io_conf;
 	 //disable interrupt
@@ -45,7 +45,8 @@ void YM2149_init()
 		 	 (1ULL<<YM2149_DA4_GPIO)	|
 		 	 (1ULL<<YM2149_DA5_GPIO)	|
 		 	 (1ULL<<YM2149_DA6_GPIO)	|
-		 	 (1ULL<<YM2149_DA7_GPIO));
+		 	 (1ULL<<YM2149_DA7_GPIO)	|
+			 (1ULL<<SPI_74HC595_GPIO_OE)); // HACK to avoid Startup troubles
 	 //disable pull-down mode
 	 io_conf.pull_down_en = 0;
 	 //disable pull-up mode
@@ -68,43 +69,23 @@ void YM2149_init()
 	 gpio_set_level(YM2149_DA6_GPIO, 0);
 	 gpio_set_level(YM2149_DA7_GPIO, 0);
 
+	 gpio_set_level(SPI_74HC595_GPIO_OE, 0);
+
 	 // Init PWM clock
-	 //YM2149_init_pwm();
+	 YM2149_init_pwm();
 
 	 // Init Command Queue
-	 cmd_queue = xQueueCreate (16, sizeof (struct ym2149_command *));
+	 cmd_queue = xQueueCreate (16, sizeof (struct ym2149_command));
 	 currentCmdState = YM2149_COMMAND_STATE_IDLE;
 
 	 // Create Task
 	 clockValue = YM2149_CLOCK_DIVIDER;
 	 //TaskHandle_t xHandle = NULL;
 	 xTaskCreate( &YM2149_loop, "YM2149_Task", 20000, NULL, 1, NULL );
-	 /*
-	 if( xHandle != NULL )
-	 {
-	  vTaskDelete( xHandle );
-	 }
-	 */
 
-	// xTaskCreate(&blinky, "blinky", 10000,NULL,5,NULL );
 	 debug();
+}
 
-}
-void blinky(void *pvParameter)
-{
-	ESP_LOGE(TAG, "BLINKY");
-    gpio_pad_select_gpio(YM2149_RESET_GPIO);
-    /* Set the GPIO as a push/pull output */
-    gpio_set_direction(YM2149_RESET_GPIO, GPIO_MODE_OUTPUT);
-    while(1) {
-        /* Blink off (output low) */
-        gpio_set_level(YM2149_RESET_GPIO, 0);
-        vTaskDelay(1000 / portTICK_RATE_MS);
-        /* Blink on (output high) */
-        gpio_set_level(YM2149_RESET_GPIO, 1);
-        vTaskDelay(1000 / portTICK_RATE_MS);
-    }
-}
 
 void YM2149_init_pwm()
 {
@@ -112,13 +93,12 @@ void YM2149_init_pwm()
 	ledc_timer_config_t ledc_timer = {
 	    .speed_mode = LEDC_HIGH_SPEED_MODE,
 	    .timer_num  = LEDC_TIMER_0,
-	    .bit_num    = YM2149_CLOCK_GPIO,
 	    .freq_hz    = 1000000
 	};
 
 	ledc_channel_config_t ledc_channel = {
 	    .channel    = LEDC_CHANNEL_0,
-	    .gpio_num   = 18,
+	    .gpio_num   = YM2149_CLOCK_GPIO,
 	    .speed_mode = LEDC_HIGH_SPEED_MODE,
 	    .timer_sel  = LEDC_TIMER_0,
 	    .duty       = 2
@@ -158,7 +138,6 @@ void YM2149_loop(void *pvParameter)
 				if (uxQueueMessagesWaiting(cmd_queue) > 0)
 				{
 					xQueueReceive (cmd_queue, &current_command, 0 );
-					debugCmd();
 					currentCmdState = YM2149_COMMAND_STATE_ADDR_MODE;
 				}
 			}
@@ -185,8 +164,8 @@ void YM2149_loop(void *pvParameter)
 			case YM2149_COMMAND_STATE_WRITE_MODE:
 			{
 				if (lastCmdState != YM2149_COMMAND_STATE_WRITE_MODE)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_WRITE_MODE VALUE: %d", current_command.register_value);
-				gpio_set_level(YM2149_BC1_GPIO, 1);
+					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_WRITE_MODE VALUE:%d BIT_LENGTH:%d BIT_START:%d", current_command.register_value, current_command.bit_length, current_command.bit_start);
+				gpio_set_level(YM2149_BC1_GPIO, 0);
 				gpio_set_level(YM2149_BCDIR_GPIO, 1);
 
 				gpio_set_level(YM2149_DA0_GPIO, (current_command.register_value & (1 << 0)));
@@ -244,7 +223,7 @@ void YM2149_stopChannel (uint8_t* channel)
 void YM2149_setChannelFreqFine(uint8_t* channel, uint8_t* value)
 {
 	 ESP_LOGE(TAG, "setChannelFreqFine(%d, %d)", *channel, *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_CHANNEL_FREQ_FINE;
 	 switch (*channel)
 	 {
@@ -262,18 +241,17 @@ void YM2149_setChannelFreqFine(uint8_t* channel, uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
-	 cmd.eof = 0xFF;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setChannelFreqFine CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 ESP_LOGE(TAG, "setChannelFreqFine CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setChannelFreqRough(uint8_t* channel, uint8_t* value)
 {
 	 ESP_LOGE(TAG, "setChannelFreqRough(%d, %d)", *channel, *value);
 
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_CHANNEL_FREQ_ROUGH;
 	 switch (*channel)
 	 {
@@ -291,32 +269,31 @@ void YM2149_setChannelFreqRough(uint8_t* channel, uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 4;
 	 cmd.bit_start = 0;
-	 cmd.eof = 0xFF;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setChannelFreqRough CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 ESP_LOGE(TAG, "setChannelFreqRough CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setNoiseFreq(uint8_t* value)
 {
 	 ESP_LOGE(TAG, "setNoiseFreq( %d)", *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_NOISE_FREQ;
 	 cmd.register_addr = YM2149_REG_6_ADDR;
 	 cmd.register_value = *value;
 	 cmd.bit_length = 5;
 	 cmd.bit_start = 0;
-	 cmd.eof = 0xFF;
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setNoiseFreq CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
+
+	 ESP_LOGE(TAG, "setNoiseFreq CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setChannelNoise(uint8_t* channel, bool* value)
 {
 	 ESP_LOGE(TAG, "setNoise(%d, %d)", *channel, *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_NOISE;
 	 cmd.register_addr = YM2149_REG_7_ADDR;
 	 cmd.register_value = *value;
@@ -333,17 +310,17 @@ void YM2149_setChannelNoise(uint8_t* channel, bool* value)
 		 break;
 	 }
 	 cmd.bit_length = 1;
-	 cmd.eof = 0xFF;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setNoise CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
+
+	 ESP_LOGE(TAG, "setNoise CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setChannelTone(uint8_t* channel, bool* value)
 {
 	ESP_LOGE(TAG, "setTone(%d, %d)", *channel, *value);
-	struct ym2149_command cmd;
+	ym2149_command cmd;
 	cmd.command_id = YM2149_CMD_ID_SET_TONE;
 	cmd.register_addr = YM2149_REG_7_ADDR;
 	cmd.register_value = *value;
@@ -360,17 +337,17 @@ void YM2149_setChannelTone(uint8_t* channel, bool* value)
 		break;
 	}
 	cmd.bit_length = 1;
-	cmd.eof = 0xFF;
 
-	xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
 
-	ESP_LOGE(TAG, "setTone CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
+
+	ESP_LOGE(TAG, "setTone CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setChannelLevelMode(uint8_t* channel, bool* value)
 {
 	 ESP_LOGE(TAG, "setLevelMode(%d, %d)", *channel, *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_LEVEL_MODE;
 
 	 switch (*channel)
@@ -389,18 +366,16 @@ void YM2149_setChannelLevelMode(uint8_t* channel, bool* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 1;
 	 cmd.bit_start = YM2149_LEVEL_MODE_BIT;
-	 cmd.eof = 0xFF;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setLevelMode CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
-
+	 ESP_LOGE(TAG, "setLevelMode CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setChannelLevel(uint8_t* channel, uint8_t* value)
 {
 	 ESP_LOGE(TAG, "setLevel(%d, %d)", *channel, *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_LEVEL;
 	 switch (*channel)
 	 {
@@ -418,58 +393,55 @@ void YM2149_setChannelLevel(uint8_t* channel, uint8_t* value)
 	 cmd.register_value = *value;
 	 cmd.bit_length = 4;
 	 cmd.bit_start = 0;
-	 cmd.eof = 0xFF;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setLevel CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 ESP_LOGE(TAG, "setLevel CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setEnvelopeFreqFine(uint8_t* value)
 {
 	 ESP_LOGE(TAG, "setEnvelopeFreqFine(%d)", *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_ENVELOPE_FREQ_FINE;
 	 cmd.register_addr = YM2149_REG_B_ADDR;
 	 cmd.register_value = *value;
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
-	 cmd.eof = 0xFF;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setEnvelopeFreqFine CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 ESP_LOGE(TAG, "setEnvelopeFreqFine CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setEnvelopeFreqRough(uint8_t* value)
 {
 	 ESP_LOGE(TAG, "setEnvelopeFreqRough(%d)", *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_ENVELOPE_FREQ_ROUGH;
 	 cmd.register_addr = YM2149_REG_C_ADDR;
 	 cmd.register_value = *value;
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
-	 cmd.eof = 0xFF;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setEnvelopeFreqRough CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 ESP_LOGE(TAG, "setEnvelopeFreqRough CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value)
 {
 	 ESP_LOGE(TAG, "setEnvelopeShape(%d, %d)", *env_shape_type, *value);
-	 struct ym2149_command cmd;
+	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_ENVELOPE_SHAPE;
 	 cmd.register_addr = YM2149_REG_D_ADDR;
 	 cmd.register_value = *value;
 	 cmd.bit_length = 1;
 	 cmd.bit_start = *env_shape_type ;
 
-	 xQueueSend( cmd_queue, ( void * ) &cmd, ( TickType_t ) 0 );
+	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setEnvelopeShape CMD cmd_id:%d register_addr:%d register_value:%d", cmd.command_id, cmd.register_addr, cmd.register_value);
+	 ESP_LOGE(TAG, "setEnvelopeShape CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
 }
 
 void debug()
@@ -494,12 +466,11 @@ void debug()
 void debugCmd()
 {
 	ESP_LOGE(TAG, "\n");
-	ESP_LOGE(TAG, "DEBUG CURRENT COMMAND");
+	ESP_LOGE(TAG, "DEBUG CURRENT COMMAND size:%d", sizeof(current_command));
 	ESP_LOGE(TAG, "command_id: %d", current_command.command_id);
 	ESP_LOGE(TAG, "register_addr: %d", current_command.register_addr);
 	ESP_LOGE(TAG, "register_value: %d", current_command.register_value);
 	ESP_LOGE(TAG, "bit_start: %d", current_command.bit_start);
 	ESP_LOGE(TAG, "bit_length: %d", current_command.bit_length);
-	ESP_LOGE(TAG, "eof: %d", current_command.eof);
 	ESP_LOGE(TAG, "\n");
 }
