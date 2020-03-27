@@ -61,7 +61,9 @@
 #define YM2149_CMD_ID_SET_ENVELOPE_FREQ_ROUGH	8
 #define YM2149_CMD_ID_SET_ENVELOPE_SHAPE		9
 
-#define YM2149_CLOCK_DIVIDER	1	// 160MHz / YM2149_CLOCK_DIVIDER = 1MHz
+#define YM2149_TIMER_DIVIDER	1	// 80MHz / YM2149_CLOCK_DIVIDER = X MHz
+#define YM2149_TIMER_SCALE		(TIMER_BASE_CLK / YM2149_TIMER_DIVIDER)
+
 
 #define YM2149_COMMAND_STATE_IDLE					0
 #define YM2149_COMMAND_STATE_ADDR_MODE				1
@@ -159,7 +161,9 @@ typedef struct ym2149_command
 // common functions
 void YM2149_init();
 void YM2149_init_pwm();
-void YM2149_loop(void *pvParameter);
+void YM2149_init_timer();
+void IRAM_ATTR YM2149_isrHandler(void *pvParameter);
+void IRAM_ATTR YM2149_cmdHandler();
 void YM2149_reset();
 
 // YM2149 general control functions

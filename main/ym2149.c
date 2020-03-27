@@ -11,21 +11,28 @@
 #include "driver/ledc.h"
 #include "esp_err.h"
 #include "spi_74hc595.h"
+#include "driver/periph_ctrl.h"
+#include "driver/timer.h"
+
 static const char *TAG = "YM2149";
 
-QueueHandle_t cmd_queue;
+volatile QueueHandle_t cmd_queue;
 
 
 volatile ym2149 ym2149_configuration;
 volatile ym219_register ym219_status;
-ym2149_command current_command;
-uint8_t currentCmdState;
-uint8_t lastCmdState;
-uint8_t clockValue;
+volatile ym2149_command current_command;
+volatile uint8_t currentCmdState;
+volatile uint8_t lastCmdState;
+
 
 void YM2149_init()
 {
-	 ESP_LOGE(TAG, "Init YM2149 struct:%d", sizeof(struct ym2149_command));
+	 ESP_LOGE(TAG, "Init YM2149");
+
+	 // Init Command Queue
+	 cmd_queue = xQueueCreate (16, sizeof (struct ym2149_command));
+	 currentCmdState = YM2149_COMMAND_STATE_IDLE;
 
 	 gpio_config_t io_conf;
 	 //disable interrupt
@@ -73,17 +80,8 @@ void YM2149_init()
 
 	 // Init PWM clock
 	 YM2149_init_pwm();
+	 YM2149_init_timer();
 
-	 // Init Command Queue
-	 cmd_queue = xQueueCreate (16, sizeof (struct ym2149_command));
-	 currentCmdState = YM2149_COMMAND_STATE_IDLE;
-
-	 // Create Task
-	 clockValue = YM2149_CLOCK_DIVIDER;
-	 //TaskHandle_t xHandle = NULL;
-	 xTaskCreate( &YM2149_loop, "YM2149_Task", 20000, NULL, 1, NULL );
-
-	 debug();
 }
 
 
@@ -107,100 +105,119 @@ void YM2149_init_pwm()
 	ledc_channel_config(&ledc_channel);
 }
 
-void YM2149_loop(void *pvParameter)
+void YM2149_init_timer()
 {
-	while(1)
+	ESP_LOGE(TAG, "Init YM2149 Timer Scale:%d Divider:%d", YM2149_TIMER_SCALE, YM2149_TIMER_DIVIDER);
+	timer_config_t config;
+	config.divider = YM2149_TIMER_DIVIDER;
+	config.counter_dir = TIMER_COUNT_UP;
+	config.counter_en = TIMER_PAUSE;
+	config.alarm_en = TIMER_ALARM_EN;
+	config.intr_type = TIMER_INTR_LEVEL;
+	config.auto_reload = 1;
+	#ifdef TIMER_GROUP_SUPPORTS_XTAL_CLOCK
+	    config.clk_src = TIMER_SRC_CLK_APB;
+	#endif
+	timer_init(TIMER_GROUP_0, TIMER_0, &config);
+
+	/* Timer's counter will initially start from value below.
+	   Also, if auto_reload is set, this value will be automatically reload on alarm */
+	timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0x00000000ULL);
+
+	/* Configure the alarm value and the interrupt on alarm. */
+	timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, 80); // Use YM2149_TIMER_SCALE to get 1sec delay
+	timer_enable_intr(TIMER_GROUP_0, TIMER_0);
+	timer_isr_register(TIMER_GROUP_0, TIMER_0, YM2149_isrHandler, (void *) TIMER_0, ESP_INTR_FLAG_IRAM, NULL);
+	ESP_LOGE(TAG, "Init YM2149 Timer done, now start ...");
+	timer_start(TIMER_GROUP_0, TIMER_0);
+	ESP_LOGE(TAG, "Init YM2149 Timer started");
+}
+
+void IRAM_ATTR YM2149_cmdHandler()
+{
+	switch (currentCmdState)
 	{
-		if (clockValue % YM2149_CLOCK_DIVIDER == 0)
+		case YM2149_COMMAND_STATE_INIT:
 		{
-			clockValue = 0;
-			switch (currentCmdState)
-			{
-			case YM2149_COMMAND_STATE_INIT:
-			{
-				if (lastCmdState != YM2149_COMMAND_STATE_INIT)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_INIT");
-				gpio_set_level(YM2149_BC1_GPIO, 0);
-				gpio_set_level(YM2149_BCDIR_GPIO, 0);
-				gpio_set_level(YM2149_RESET_GPIO, 0);
-				lastCmdState = currentCmdState;
-				currentCmdState = YM2149_COMMAND_STATE_IDLE;
+			gpio_set_level(YM2149_BC1_GPIO, 0);
+			gpio_set_level(YM2149_BCDIR_GPIO, 0);
+			gpio_set_level(YM2149_RESET_GPIO, 0);
+			lastCmdState = currentCmdState;
+			currentCmdState = YM2149_COMMAND_STATE_IDLE;
 
-			}
-				break;
-			case YM2149_COMMAND_STATE_IDLE:
+		}
+			break;
+		case YM2149_COMMAND_STATE_IDLE:
+		{
+			gpio_set_level(YM2149_BC1_GPIO, 0);
+			gpio_set_level(YM2149_BCDIR_GPIO, 0);
+			lastCmdState = currentCmdState;
+			if (uxQueueMessagesWaiting(cmd_queue) > 0)
 			{
-				if (lastCmdState != YM2149_COMMAND_STATE_IDLE)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_IDLE");
-				gpio_set_level(YM2149_BC1_GPIO, 0);
-				gpio_set_level(YM2149_BCDIR_GPIO, 0);
-				lastCmdState = currentCmdState;
-				if (uxQueueMessagesWaiting(cmd_queue) > 0)
-				{
-					xQueueReceive (cmd_queue, &current_command, 0 );
-					currentCmdState = YM2149_COMMAND_STATE_ADDR_MODE;
-				}
-			}
-				break;
-			case YM2149_COMMAND_STATE_ADDR_MODE:
-			{
-				if (lastCmdState != YM2149_COMMAND_STATE_ADDR_MODE)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_ADDR_MODE VALUE:%d", current_command.register_addr);
-				gpio_set_level(YM2149_BC1_GPIO, 1);
-				gpio_set_level(YM2149_BCDIR_GPIO, 1);
-
-				gpio_set_level(YM2149_DA0_GPIO, (current_command.register_addr & (1 << 0)));
-				gpio_set_level(YM2149_DA1_GPIO, (current_command.register_addr & (1 << 1)));
-				gpio_set_level(YM2149_DA2_GPIO, (current_command.register_addr & (1 << 2)));
-				gpio_set_level(YM2149_DA3_GPIO, (current_command.register_addr & (1 << 3)));
-				gpio_set_level(YM2149_DA4_GPIO, 0);
-				gpio_set_level(YM2149_DA5_GPIO, 0);
-				gpio_set_level(YM2149_DA6_GPIO, 0);
-				gpio_set_level(YM2149_DA7_GPIO, 0);
-				lastCmdState = currentCmdState;
-				currentCmdState = YM2149_COMMAND_STATE_WRITE_MODE;
-			}
-				break;
-			case YM2149_COMMAND_STATE_WRITE_MODE:
-			{
-				if (lastCmdState != YM2149_COMMAND_STATE_WRITE_MODE)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_WRITE_MODE VALUE:%d BIT_LENGTH:%d BIT_START:%d", current_command.register_value, current_command.bit_length, current_command.bit_start);
-				gpio_set_level(YM2149_BC1_GPIO, 0);
-				gpio_set_level(YM2149_BCDIR_GPIO, 1);
-
-				gpio_set_level(YM2149_DA0_GPIO, (current_command.register_value & (1 << 0)));
-				gpio_set_level(YM2149_DA1_GPIO, (current_command.register_value & (1 << 1)));
-				gpio_set_level(YM2149_DA2_GPIO, (current_command.register_value & (1 << 2)));
-				gpio_set_level(YM2149_DA3_GPIO, (current_command.register_value & (1 << 3)));
-				gpio_set_level(YM2149_DA4_GPIO, (current_command.register_value & (1 << 4)));
-				gpio_set_level(YM2149_DA5_GPIO, (current_command.register_value & (1 << 5)));
-				gpio_set_level(YM2149_DA6_GPIO, (current_command.register_value & (1 << 6)));
-				gpio_set_level(YM2149_DA7_GPIO, (current_command.register_value & (1 << 7)));
-				lastCmdState = currentCmdState;
-				currentCmdState = YM2149_COMMAND_STATE_IDLE;
-			}
-				break;
-			case YM2149_COMMAND_STATE_CLEANUP:
-			{
-				if (lastCmdState != YM2149_COMMAND_STATE_CLEANUP)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_CLEANUP");
-			}
-				break;
-			case YM2149_COMMAND_STATE_RESET:
-			{
-				if (lastCmdState != YM2149_COMMAND_STATE_RESET)
-					ESP_LOGE(TAG, "YM2149_COMMAND_STATE_RESET");
-				gpio_set_level(YM2149_RESET_GPIO, 0);
-				xQueueReset(cmd_queue);
-				lastCmdState = currentCmdState;
-				currentCmdState = YM2149_COMMAND_STATE_INIT;
-			}
-				break;
+				xQueueReceiveFromISR (cmd_queue, &current_command, 0 );
+				currentCmdState = YM2149_COMMAND_STATE_ADDR_MODE;
 			}
 		}
-		vTaskDelay(500 / portTICK_RATE_MS);
-		++clockValue;
+		break;
+		case YM2149_COMMAND_STATE_ADDR_MODE:
+		{
+			gpio_set_level(YM2149_BC1_GPIO, 1);
+			gpio_set_level(YM2149_BCDIR_GPIO, 1);
+
+			gpio_set_level(YM2149_DA0_GPIO, (current_command.register_addr & (1 << 0)));
+			gpio_set_level(YM2149_DA1_GPIO, (current_command.register_addr & (1 << 1)));
+			gpio_set_level(YM2149_DA2_GPIO, (current_command.register_addr & (1 << 2)));
+			gpio_set_level(YM2149_DA3_GPIO, (current_command.register_addr & (1 << 3)));
+			gpio_set_level(YM2149_DA4_GPIO, 0);
+			gpio_set_level(YM2149_DA5_GPIO, 0);
+			gpio_set_level(YM2149_DA6_GPIO, 0);
+			gpio_set_level(YM2149_DA7_GPIO, 0);
+			lastCmdState = currentCmdState;
+			currentCmdState = YM2149_COMMAND_STATE_WRITE_MODE;
+		}
+		break;
+		case YM2149_COMMAND_STATE_WRITE_MODE:
+		{
+			gpio_set_level(YM2149_BC1_GPIO, 0);
+			gpio_set_level(YM2149_BCDIR_GPIO, 1);
+
+			gpio_set_level(YM2149_DA0_GPIO, (current_command.register_value & (1 << 0)));
+			gpio_set_level(YM2149_DA1_GPIO, (current_command.register_value & (1 << 1)));
+			gpio_set_level(YM2149_DA2_GPIO, (current_command.register_value & (1 << 2)));
+			gpio_set_level(YM2149_DA3_GPIO, (current_command.register_value & (1 << 3)));
+			gpio_set_level(YM2149_DA4_GPIO, (current_command.register_value & (1 << 4)));
+			gpio_set_level(YM2149_DA5_GPIO, (current_command.register_value & (1 << 5)));
+			gpio_set_level(YM2149_DA6_GPIO, (current_command.register_value & (1 << 6)));
+			gpio_set_level(YM2149_DA7_GPIO, (current_command.register_value & (1 << 7)));
+			lastCmdState = currentCmdState;
+			currentCmdState = YM2149_COMMAND_STATE_IDLE;
+		}
+		break;
+		case YM2149_COMMAND_STATE_CLEANUP:
+		{
+			// TODO
+		}
+		break;
+		case YM2149_COMMAND_STATE_RESET:
+		{
+			gpio_set_level(YM2149_RESET_GPIO, 0);
+			xQueueReset(cmd_queue);
+			lastCmdState = currentCmdState;
+			currentCmdState = YM2149_COMMAND_STATE_INIT;
+		}
+		break;
 	}
+}
+void IRAM_ATTR YM2149_isrHandler(void *pvParameter)
+{
+	// ATTENTION: Don't print logs in ISR methods !!!
+	// @see https://esp32.com/viewtopic.php?t=3748
+
+	// Examples
+	// https://esp32developer.com/programming-in-c-c/timing/hardware-timers
+	YM2149_cmdHandler();
+
+	timer_group_enable_alarm_in_isr(TIMER_GROUP_0, TIMER_0);
 }
 
 void YM2149_reset()
