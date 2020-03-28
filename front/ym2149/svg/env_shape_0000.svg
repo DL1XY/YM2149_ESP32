@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
-    version="1.1" baseProfile="full">
+    version="1.1" baseProfile="full" id="env_shape">
   
 	<rect
 		 x="0" y="0"
@@ -9,4 +9,9 @@
 		 style="fill:black"
 	/>
 	<polyline points="0 15 30 35 210 35" stroke="#00ccff" stroke-width="4" stroke-linecap="butt" fill="none" stroke-linejoin="miter"/>
+	 <script type="text/javascript"><![CDATA[
+	    var svg = document.getElementsByTagName('svg')[0];
+	    console.log(svg);
+	    
+  ]]></script>
 </svg>

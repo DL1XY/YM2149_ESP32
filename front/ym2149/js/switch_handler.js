@@ -1,5 +1,5 @@
 var baseUrl = "http://ym2149.local/api/v1/ym2149";
-
+var currentEnvShape = "0000";
 async function postData(url = '', data = {}) {
   // Default options are marked with *
   const response = await fetch(url, {
@@ -63,6 +63,7 @@ function channelMuteSwitch(channel, isOn)
 
 function envShapeSwitch(env_shape_type, isOn)
 {
+	changeSvg(env_shape_type, isOn);
 	var url = baseUrl + "/envelope/shape";
 	postData(url, { env_shape_type: env_shape_type, value: isOn })
 		.then((data) => {
@@ -70,4 +71,20 @@ function envShapeSwitch(env_shape_type, isOn)
 		});
 	console.log();
 	
+}
+
+function changeSvg(env_shape_type, isOn)
+{	
+	currentEnvShape = setCharAt(currentEnvShape,Math.abs(env_shape_type-3),isOn);
+	console.log("currentEnvShape new:"+currentEnvShape);
+	var svgFileName = "svg/env_shape_"+currentEnvShape+".svg";
+	var clone=document.getElementById('svg_env').cloneNode(true);
+	clone.setAttribute('data',svgFileName);
+	document.getElementById('svg_env').parentNode.replaceChild(clone, document.getElementById('svg_env'));
+	
+}
+
+function setCharAt(str,index,chr) {
+    if(index > str.length-1) return str;
+    return str.substr(0,index) + chr + str.substr(index+1);
 }
