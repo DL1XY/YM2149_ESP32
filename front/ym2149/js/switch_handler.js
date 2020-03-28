@@ -79,7 +79,7 @@ function changeSvg(env_shape_type, isOn)
 	console.log("currentEnvShape new:"+currentEnvShape);
 	var svgFileName = "svg/env_shape_"+currentEnvShape+".svg";
 	var clone=document.getElementById('svg_env').cloneNode(true);
-	clone.setAttribute('data',svgFileName);
+	clone.setAttribute('src',svgFileName);
 	document.getElementById('svg_env').parentNode.replaceChild(clone, document.getElementById('svg_env'));
 	
 }
