@@ -2,7 +2,7 @@
  * ym2149f.h
  *
  *  Created on: 14.03.2020
- *      Author: arnew
+ *      Author: DL1XY
  */
 
 #ifndef MAIN_YM2149_H_
@@ -13,6 +13,19 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
+
+#define DEBUG_OUTPUT 1
+
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
 
 #define YM2149_CHANNEL_A 	0
 #define YM2149_CHANNEL_B 	1
@@ -31,7 +44,7 @@
 
 #define YM2149_NOISE_CHANNEL_A_BIT 	3
 #define YM2149_NOISE_CHANNEL_B_BIT 	4
-#define YM2149_NOISE_CHANNEL_C_BIT	 5
+#define YM2149_NOISE_CHANNEL_C_BIT	5
 
 #define YM2149_REG_0_ADDR 	0b0000
 #define YM2149_REG_1_ADDR 	0b0001
@@ -157,17 +170,17 @@ typedef struct ym2149_command
 
 
 
-// common functions
+// init functions
 void YM2149_init();
 void YM2149_init_pwm();
 void YM2149_init_timer();
+
+// ISR
 void IRAM_ATTR YM2149_isrHandler(void *pvParameter);
 void IRAM_ATTR YM2149_cmdHandler();
-void YM2149_reset();
 
-// YM2149 general control functions
-void YM2149_setPwmClock();
-void YM2149_write();
+
+void YM2149_reset();
 
 // YM2149 play functions
 void YM2149_playChannel (uint8_t* channels);
@@ -187,5 +200,7 @@ void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value);
 
 void debug();
 void debugCmd();
+void debugReg();
+void debugConf();
 
 #endif /* MAIN_YM2149_H_ */

@@ -23,9 +23,9 @@ async function postData(url = '', data = {}) {
 
 function getChannelId(channel)
 {
-	if (channel == 'A') return 1;
-	if (channel == 'B') return 2;
-	if (channel == 'C') return 3;
+	if (channel == 'A') return 0;
+	if (channel == 'B') return 1;
+	if (channel == 'C') return 2;
 
 }
 function channelRoughKnob(channel) {
@@ -128,7 +128,7 @@ function channelLevelKnob(channel) {
 	knob.setProperty('colorFG', knobColor);
 	knob.setProperty('trackWidth', 0.4);
 	knob.setProperty('valMin', 0);
-	knob.setProperty('valMax', 255);
+	knob.setProperty('valMax', 15);
 
 	// Set initial value.
 	knob.setValue(0);

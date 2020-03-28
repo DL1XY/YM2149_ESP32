@@ -1,7 +1,6 @@
 idf_component_register(SRCS "esp_rest_main.c"
 							"rest_common.c" 
                             "rest_ym2149.c"
-                            "led_handler.c"
                             "ym2149.c"
                     INCLUDE_DIRS ".")
 

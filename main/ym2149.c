@@ -2,8 +2,9 @@
  * ym2149f.c
  *
  *  Created on: 14.03.2020
- *      Author: arnew
+ *      Author: DL1XY
  */
+
 
 
 #include <ym2149.h>
@@ -20,7 +21,7 @@ volatile QueueHandle_t cmd_queue;
 
 
 volatile ym2149 ym2149_configuration;
-volatile ym219_register ym219_status;
+volatile ym219_register ym219_register_status;
 volatile ym2149_command current_command;
 volatile uint8_t currentCmdState;
 volatile uint8_t lastCmdState;
@@ -246,12 +247,18 @@ void YM2149_setChannelFreqFine(uint8_t* channel, uint8_t* value)
 	 {
 	 case YM2149_CHANNEL_A:
 		 cmd.register_addr = YM2149_REG_0_ADDR;
+		 ym219_register_status.reg_0 = *value;
+		 ym2149_configuration.channel_a_freq_fine = *value;
 		 break;
 	 case YM2149_CHANNEL_B:
 		 cmd.register_addr = YM2149_REG_2_ADDR;
+		 ym219_register_status.reg_2 = *value;
+		 ym2149_configuration.channel_b_freq_fine = *value;
 		 break;
 	 case YM2149_CHANNEL_C:
 		 cmd.register_addr = YM2149_REG_4_ADDR;
+		 ym219_register_status.reg_4 = *value;
+		 ym2149_configuration.channel_c_freq_fine = *value;
 	 	 break;
 	 }
 
@@ -259,9 +266,16 @@ void YM2149_setChannelFreqFine(uint8_t* channel, uint8_t* value)
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
 
+
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setChannelFreqFine CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void YM2149_setChannelFreqRough(uint8_t* channel, uint8_t* value)
@@ -274,12 +288,18 @@ void YM2149_setChannelFreqRough(uint8_t* channel, uint8_t* value)
 	 {
 	 case YM2149_CHANNEL_A:
 		 cmd.register_addr = YM2149_REG_1_ADDR;
+		 ym219_register_status.reg_1 = *value;
+		 ym2149_configuration.channel_a_freq_rough = *value & 0x0F;
 		 break;
 	 case YM2149_CHANNEL_B:
 		 cmd.register_addr = YM2149_REG_3_ADDR;
+		 ym219_register_status.reg_3 = *value;
+		 ym2149_configuration.channel_b_freq_rough = *value & 0x0F;
 		 break;
 	 case YM2149_CHANNEL_C:
-		 cmd.register_addr = YM2149_REG_4_ADDR;
+		 cmd.register_addr = YM2149_REG_5_ADDR;
+		 ym219_register_status.reg_5 = *value;
+		 ym2149_configuration.channel_c_freq_rough = *value & 0x0F;
 		 break;
 	 }
 
@@ -290,6 +310,11 @@ void YM2149_setChannelFreqRough(uint8_t* channel, uint8_t* value)
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setChannelFreqRough CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
 }
 
 void YM2149_setNoiseFreq(uint8_t* value)
@@ -302,14 +327,22 @@ void YM2149_setNoiseFreq(uint8_t* value)
 	 cmd.bit_length = 5;
 	 cmd.bit_start = 0;
 
+	 ym219_register_status.reg_6 = *value;
+	 ym2149_configuration.noise_freq = *value;
+
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setNoiseFreq CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void YM2149_setChannelNoise(uint8_t* channel, bool* value)
 {
-	 ESP_LOGE(TAG, "setNoise(%d, %d)", *channel, *value);
+	 ESP_LOGE(TAG, "setChannelNoise(%d, %d)", *channel, *value);
 	 ym2149_command cmd;
 	 cmd.command_id = YM2149_CMD_ID_SET_NOISE;
 	 cmd.register_addr = YM2149_REG_7_ADDR;
@@ -318,20 +351,30 @@ void YM2149_setChannelNoise(uint8_t* channel, bool* value)
 	 {
 	 case YM2149_CHANNEL_A:
 		 cmd.bit_start = YM2149_NOISE_CHANNEL_A_BIT;
+		 ym219_register_status.reg_7 |= *value <<  YM2149_NOISE_CHANNEL_A_BIT;
+		 ym2149_configuration.channel_a_noise = *value;
 		 break;
 	 case YM2149_CHANNEL_B:
 		 cmd.bit_start = YM2149_NOISE_CHANNEL_B_BIT;
+		 ym219_register_status.reg_7 |= *value <<  YM2149_NOISE_CHANNEL_B_BIT;
+		 ym2149_configuration.channel_b_noise = *value;
 		 break;
 	 case YM2149_CHANNEL_C:
 		 cmd.bit_start = YM2149_NOISE_CHANNEL_C_BIT;
+		 ym219_register_status.reg_7 |= *value <<  YM2149_NOISE_CHANNEL_C_BIT;
+		 ym2149_configuration.channel_c_noise = *value;
 		 break;
 	 }
 	 cmd.bit_length = 1;
 
-
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
-	 ESP_LOGE(TAG, "setNoise CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+	 ESP_LOGE(TAG, "setChannelNoise CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void YM2149_setChannelTone(uint8_t* channel, bool* value)
@@ -345,20 +388,30 @@ void YM2149_setChannelTone(uint8_t* channel, bool* value)
 	{
 	case YM2149_CHANNEL_A:
 		cmd.bit_start = YM2149_TONE_CHANNEL_A_BIT;
+		ym219_register_status.reg_7 |= *value <<  YM2149_TONE_CHANNEL_A_BIT;
+		ym2149_configuration.channel_a_tone = *value;
 		break;
 	case YM2149_CHANNEL_B:
+		ym219_register_status.reg_7 |= *value <<  YM2149_TONE_CHANNEL_B_BIT;
+		ym2149_configuration.channel_b_tone = *value;
 		cmd.bit_start = YM2149_TONE_CHANNEL_B_BIT;
 		break;
 	case YM2149_CHANNEL_C:
+		ym219_register_status.reg_7 |= *value <<  YM2149_TONE_CHANNEL_C_BIT;
+		ym2149_configuration.channel_c_tone = *value;
 		cmd.bit_start = YM2149_TONE_CHANNEL_C_BIT;
 		break;
 	}
 	cmd.bit_length = 1;
 
-
 	xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	ESP_LOGE(TAG, "setTone CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void YM2149_setChannelLevelMode(uint8_t* channel, bool* value)
@@ -371,12 +424,18 @@ void YM2149_setChannelLevelMode(uint8_t* channel, bool* value)
 	 {
 	 case YM2149_CHANNEL_A:
 		 cmd.register_addr = YM2149_REG_8_ADDR;
+		 ym219_register_status.reg_8 |= *value <<  YM2149_LEVEL_MODE_BIT;
+		 ym2149_configuration.channel_a_amp_mode = *value;
 		 break;
 	 case YM2149_CHANNEL_B:
 		 cmd.register_addr = YM2149_REG_9_ADDR;
+		 ym219_register_status.reg_9 |= *value <<  YM2149_LEVEL_MODE_BIT;
+		 ym2149_configuration.channel_b_amp_mode = *value;
 		 break;
 	 case YM2149_CHANNEL_C:
 		 cmd.register_addr = YM2149_REG_A_ADDR;
+		 ym219_register_status.reg_A |= *value <<  YM2149_LEVEL_MODE_BIT;
+		 ym2149_configuration.channel_c_amp_mode = *value;
 		 break;
 	 }
 
@@ -387,6 +446,11 @@ void YM2149_setChannelLevelMode(uint8_t* channel, bool* value)
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setLevelMode CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void YM2149_setChannelLevel(uint8_t* channel, uint8_t* value)
@@ -398,12 +462,18 @@ void YM2149_setChannelLevel(uint8_t* channel, uint8_t* value)
 	 {
 	 case YM2149_CHANNEL_A:
 		 cmd.register_addr = YM2149_REG_8_ADDR;
+		 ym219_register_status.reg_8 |= *value & 0x0F;
+		 ym2149_configuration.channel_a_level = *value & 0x0F;
 		 break;
 	 case YM2149_CHANNEL_B:
 		 cmd.register_addr = YM2149_REG_9_ADDR;
+		 ym219_register_status.reg_9 |= *value & 0x0F;
+		 ym2149_configuration.channel_b_level = *value & 0x0F;
 		 break;
 	 case YM2149_CHANNEL_C:
 		 cmd.register_addr = YM2149_REG_A_ADDR;
+		 ym219_register_status.reg_A |= *value & 0x0F;
+		 ym2149_configuration.channel_c_level = *value & 0x0F;
 		 break;
 	 }
 
@@ -414,6 +484,10 @@ void YM2149_setChannelLevel(uint8_t* channel, uint8_t* value)
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setLevel CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
 }
 
 void YM2149_setEnvelopeFreqFine(uint8_t* value)
@@ -426,9 +500,17 @@ void YM2149_setEnvelopeFreqFine(uint8_t* value)
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
 
+	 ym219_register_status.reg_B = *value;
+	 ym2149_configuration.envelope_fine_freq = *value;
+
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setEnvelopeFreqFine CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void YM2149_setEnvelopeFreqRough(uint8_t* value)
@@ -441,9 +523,17 @@ void YM2149_setEnvelopeFreqRough(uint8_t* value)
 	 cmd.bit_length = 8;
 	 cmd.bit_start = 0;
 
+	 ym219_register_status.reg_C = *value;
+	 ym2149_configuration.envelope_rough_freq = *value;
+
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setEnvelopeFreqRough CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value)
@@ -456,9 +546,31 @@ void YM2149_setEnvelopeShape(uint8_t* env_shape_type, bool* value)
 	 cmd.bit_length = 1;
 	 cmd.bit_start = *env_shape_type ;
 
+	 ym219_register_status.reg_D |= *value << *env_shape_type;
+
+	 switch (*env_shape_type)
+	 {
+	 case 0:	// HOLD
+		 ym2149_configuration.envelope_shape_hold = *value;
+		 break;
+	 case 1:	// ALT
+		 ym2149_configuration.envelope_shape_alt = *value;
+ 		 break;
+	 case 2:	// ATT
+		 ym2149_configuration.envelope_shape_att = *value;
+ 		 break;
+	 case 3:	// CONT
+		 ym2149_configuration.envelope_shape_cont = *value;
+ 		 break;
+	 }
 	 xQueueSend( cmd_queue, &cmd, ( TickType_t ) 0 );
 
 	 ESP_LOGE(TAG, "setEnvelopeShape CMD cmd_id:%d register_addr:%d register_value:%d bit_start:%d bit_length:%d", cmd.command_id, cmd.register_addr, cmd.register_value, cmd.bit_start, cmd.bit_length);
+#ifdef DEBUG_OUTPUT
+	 debugReg();
+	 debugConf();
+#endif
+
 }
 
 void debug()
@@ -490,4 +602,67 @@ void debugCmd()
 	ESP_LOGE(TAG, "bit_start: %d", current_command.bit_start);
 	ESP_LOGE(TAG, "bit_length: %d", current_command.bit_length);
 	ESP_LOGE(TAG, "\n");
+}
+
+void debugReg()
+{
+	ESP_LOGE(TAG, "\n");
+	ESP_LOGE(TAG, "DEBUG REGISTER");
+	ESP_LOGE(TAG, "##########################");
+	ESP_LOGE(TAG, "REG 0: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_0), ym219_register_status.reg_0);
+	ESP_LOGE(TAG, "REG 1: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_1), ym219_register_status.reg_1);
+	ESP_LOGE(TAG, "REG 2: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_2), ym219_register_status.reg_2);
+	ESP_LOGE(TAG, "REG 3: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_3), ym219_register_status.reg_3);
+	ESP_LOGE(TAG, "REG 4: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_4), ym219_register_status.reg_4);
+	ESP_LOGE(TAG, "REG 5: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_5), ym219_register_status.reg_5);
+	ESP_LOGE(TAG, "REG 6: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_6), ym219_register_status.reg_6);
+	ESP_LOGE(TAG, "REG 7: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_7), ym219_register_status.reg_7);
+	ESP_LOGE(TAG, "REG 8: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_8), ym219_register_status.reg_8);
+	ESP_LOGE(TAG, "REG 9: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_9), ym219_register_status.reg_9);
+	ESP_LOGE(TAG, "REG A: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_A), ym219_register_status.reg_A);
+	ESP_LOGE(TAG, "REG B: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_B), ym219_register_status.reg_B);
+	ESP_LOGE(TAG, "REG C: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_C), ym219_register_status.reg_C);
+	ESP_LOGE(TAG, "REG D: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_D), ym219_register_status.reg_D);
+	ESP_LOGE(TAG, "REG E: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_E), ym219_register_status.reg_E);
+	ESP_LOGE(TAG, "REG F: "BYTE_TO_BINARY_PATTERN" %d", BYTE_TO_BINARY(ym219_register_status.reg_F), ym219_register_status.reg_F);
+	ESP_LOGE(TAG, "##########################");
+}
+void debugConf()
+{
+	ESP_LOGE(TAG, "\n");
+	ESP_LOGE(TAG, "DEBUG CONF");
+	ESP_LOGE(TAG, "##########################");
+	ESP_LOGE(TAG, "channel_a_freq_fine:%d", ym2149_configuration.channel_a_freq_fine);
+	ESP_LOGE(TAG, "channel_a_freq_rough:%d", ym2149_configuration.channel_a_freq_rough);
+	ESP_LOGE(TAG, "channel_b_freq_fine:%d", ym2149_configuration.channel_b_freq_fine);
+	ESP_LOGE(TAG, "channel_b_freq_rough:%d", ym2149_configuration.channel_b_freq_rough);
+	ESP_LOGE(TAG, "channel_c_freq_fine:%d", ym2149_configuration.channel_c_freq_fine);
+	ESP_LOGE(TAG, "channel_c_freq_rough:%d", ym2149_configuration.channel_c_freq_rough);
+
+	ESP_LOGE(TAG, "noise_freq:%d", ym2149_configuration.noise_freq);
+
+	ESP_LOGE(TAG, "channel_a_noise:%d", ym2149_configuration.channel_a_noise);
+	ESP_LOGE(TAG, "channel_b_noise:%d", ym2149_configuration.channel_b_noise);
+	ESP_LOGE(TAG, "channel_c_noise:%d", ym2149_configuration.channel_c_noise);
+
+	ESP_LOGE(TAG, "channel_a_tone:%d", ym2149_configuration.channel_a_tone);
+	ESP_LOGE(TAG, "channel_b_tone:%d", ym2149_configuration.channel_b_tone);
+	ESP_LOGE(TAG, "channel_c_tone:%d", ym2149_configuration.channel_c_tone);
+
+	ESP_LOGE(TAG, "channel_a_amp_mode:%d", ym2149_configuration.channel_a_amp_mode);
+	ESP_LOGE(TAG, "channel_b_amp_mode:%d", ym2149_configuration.channel_b_amp_mode);
+	ESP_LOGE(TAG, "channel_c_amp_mode:%d", ym2149_configuration.channel_c_amp_mode);
+
+	ESP_LOGE(TAG, "channel_a_level:%d", ym2149_configuration.channel_a_level);
+	ESP_LOGE(TAG, "channel_b_level:%d", ym2149_configuration.channel_b_level);
+	ESP_LOGE(TAG, "channel_c_level:%d", ym2149_configuration.channel_c_level);
+
+	ESP_LOGE(TAG, "envelope_fine_freq:%d", ym2149_configuration.envelope_fine_freq);
+	ESP_LOGE(TAG, "envelope_rough_freq:%d", ym2149_configuration.envelope_rough_freq);
+
+	ESP_LOGE(TAG, "envelope_shape_cont:%d", ym2149_configuration.envelope_shape_cont);
+	ESP_LOGE(TAG, "envelope_shape_att:%d", ym2149_configuration.envelope_shape_att);
+	ESP_LOGE(TAG, "envelope_shape_alt:%d", ym2149_configuration.envelope_shape_alt);
+	ESP_LOGE(TAG, "envelope_shape_hold:%d", ym2149_configuration.envelope_shape_hold);
+	ESP_LOGE(TAG, "##########################");
 }
