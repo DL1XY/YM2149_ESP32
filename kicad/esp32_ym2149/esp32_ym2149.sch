@@ -4,10 +4,10 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
+Title "YM2149 ESP32"
 Date ""
 Rev ""
-Comp ""
+Comp "DL1XY"
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -26,149 +26,16 @@ F 4 "Espressif Systems" H 3300 3050 50  0001 L BNN "Feld4"
 	1    0    0    -1  
 $EndComp
 $Comp
-L DL1XY_AUDIOCHIPS:YM2149 U?
-U 1 1 5E7F9386
-P 6300 2800
-F 0 "U?" H 6275 4539 50  0000 C CNN
-F 1 "YM2149" H 6275 4410 100 0000 C CNN
-F 2 "" H 6300 2150 50  0001 C CNN
-F 3 "" H 6300 2150 50  0001 C CNN
-	1    6300 2800
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4100 3550 4500 3550
-Wire Wire Line
-	4500 3550 4500 4500
-Wire Wire Line
-	4500 4500 7500 4500
-Wire Wire Line
-	7500 4500 7500 3950
-Wire Wire Line
-	7500 3950 7100 3950
-Wire Wire Line
-	4100 3650 4600 3650
-Wire Wire Line
-	4600 3650 4600 4450
-Wire Wire Line
-	4600 4450 7400 4450
-Wire Wire Line
-	7400 4450 7400 4100
-Wire Wire Line
-	7400 4100 7100 4100
-Wire Wire Line
-	2500 3350 2350 3350
-Wire Wire Line
-	2350 3350 2350 4700
-Wire Wire Line
-	2350 4700 7800 4700
-Wire Wire Line
-	7800 4700 7800 3050
-Wire Wire Line
-	7800 3050 7100 3050
-Wire Wire Line
-	2500 3250 2250 3250
-Wire Wire Line
-	2250 3250 2250 4900
-Wire Wire Line
-	2250 4900 8000 4900
-Wire Wire Line
-	8000 4900 8000 3350
-Wire Wire Line
-	8000 3350 7100 3350
-Wire Wire Line
-	4100 3350 4600 3350
-Wire Wire Line
-	4600 3350 4600 1050
-Wire Wire Line
-	4600 1050 7300 1050
-Wire Wire Line
-	7300 1050 7300 1850
-Wire Wire Line
-	7300 1850 7100 1850
-Wire Wire Line
-	4100 3250 4500 3250
-Wire Wire Line
-	4500 3250 4500 1000
-Wire Wire Line
-	4500 1000 7350 1000
-Wire Wire Line
-	7350 1000 7350 2000
-Wire Wire Line
-	7350 2000 7100 2000
-Wire Wire Line
-	4100 3150 4450 3150
-Wire Wire Line
-	4450 3150 4450 950 
-Wire Wire Line
-	4450 950  7400 950 
-Wire Wire Line
-	7400 950  7400 2150
-Wire Wire Line
-	7400 2150 7100 2150
-Wire Wire Line
-	4100 2650 4400 2650
-Wire Wire Line
-	4400 2650 4400 900 
-Wire Wire Line
-	4400 900  7450 900 
-Wire Wire Line
-	7450 900  7450 2300
-Wire Wire Line
-	7450 2300 7100 2300
-Wire Wire Line
-	2500 3150 2150 3150
-Wire Wire Line
-	2150 3150 2150 5000
-Wire Wire Line
-	2150 5000 8150 5000
-Wire Wire Line
-	8150 5000 8150 2450
-Wire Wire Line
-	8150 2450 7100 2450
-Wire Wire Line
-	2500 3050 2050 3050
-Wire Wire Line
-	2050 3050 2050 5100
-Wire Wire Line
-	2050 5100 8300 5100
-Wire Wire Line
-	8300 5100 8300 2600
-Wire Wire Line
-	8300 2600 7100 2600
-Wire Wire Line
-	2500 2950 1950 2950
-Wire Wire Line
-	1950 2950 1950 5250
-Wire Wire Line
-	1950 5250 8450 5250
-Wire Wire Line
-	8450 5250 8450 2750
-Wire Wire Line
-	8450 2750 7100 2750
-Wire Wire Line
-	2500 2850 1850 2850
-Wire Wire Line
-	1850 2850 1850 5400
-Wire Wire Line
-	1850 5400 8550 5400
-Wire Wire Line
-	8550 5400 8550 2900
-Wire Wire Line
-	8550 2900 7100 2900
-$Comp
 L power:+5V #PWR?
 U 1 1 5E8056D1
-P 7300 3200
-F 0 "#PWR?" H 7300 3050 50  0001 C CNN
-F 1 "+5V" H 7315 3373 50  0000 C CNN
-F 2 "" H 7300 3200 50  0001 C CNN
-F 3 "" H 7300 3200 50  0001 C CNN
-	1    7300 3200
+P 7800 2900
+F 0 "#PWR?" H 7800 2750 50  0001 C CNN
+F 1 "+5V" H 7815 3073 50  0000 C CNN
+F 2 "" H 7800 2900 50  0001 C CNN
+F 3 "" H 7800 2900 50  0001 C CNN
+	1    7800 2900
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	7100 3200 7300 3200
 Wire Wire Line
 	7100 1400 7150 1400
 $Comp
@@ -214,39 +81,132 @@ Wire Wire Line
 Wire Wire Line
 	5200 1100 5200 1400
 Connection ~ 5200 1400
-Wire Wire Line
-	7100 3650 7300 3650
-Wire Wire Line
-	7300 3650 7300 3500
-Connection ~ 7300 3200
 $Comp
 L power:GNDREF #PWR?
 U 1 1 5E80FFBF
-P 7400 3800
-F 0 "#PWR?" H 7400 3550 50  0001 C CNN
-F 1 "GNDREF" H 7405 3627 50  0000 C CNN
-F 2 "" H 7400 3800 50  0001 C CNN
-F 3 "" H 7400 3800 50  0001 C CNN
-	1    7400 3800
+P 8100 3000
+F 0 "#PWR?" H 8100 2750 50  0001 C CNN
+F 1 "GNDREF" H 8105 2827 50  0000 C CNN
+F 2 "" H 8100 3000 50  0001 C CNN
+F 3 "" H 8100 3000 50  0001 C CNN
+	1    8100 3000
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	7100 3800 7400 3800
 $Comp
 L Device:C C?
 U 1 1 5E811FCB
-P 7400 3650
-F 0 "C?" H 7515 3696 50  0000 L CNN
-F 1 "10nF" H 7515 3605 50  0000 L CNN
-F 2 "" H 7438 3500 50  0001 C CNN
-F 3 "~" H 7400 3650 50  0001 C CNN
-	1    7400 3650
+P 7950 3000
+F 0 "C?" H 8065 3046 50  0000 L CNN
+F 1 "10nF" H 8065 2955 50  0000 L CNN
+F 2 "" H 7988 2850 50  0001 C CNN
+F 3 "~" H 7950 3000 50  0001 C CNN
+	1    7950 3000
+	0    -1   -1   0   
+$EndComp
+Text GLabel 4100 3650 2    50   Output ~ 0
+CLOCK
+Text GLabel 7100 4100 2    50   Input ~ 0
+CLOCK
+Text GLabel 4100 2650 2    50   Output ~ 0
+DA3
+Text GLabel 7100 2300 2    50   Input ~ 0
+DA3
+Text GLabel 7100 2150 2    50   Input ~ 0
+DA2
+Text GLabel 4100 3150 2    50   Output ~ 0
+DA2
+Text GLabel 4100 3250 2    50   Output ~ 0
+DA1
+Text GLabel 7100 2000 2    50   Input ~ 0
+DA1
+Text GLabel 4100 3350 2    50   Output ~ 0
+DA0
+Text GLabel 7100 1850 2    50   Input ~ 0
+DA0
+Text GLabel 2500 2850 0    50   Output ~ 0
+DA7
+Text GLabel 2500 2950 0    50   Output ~ 0
+DA6
+Text GLabel 2500 3050 0    50   Output ~ 0
+DA5
+Text GLabel 2500 3150 0    50   Output ~ 0
+DA4
+Text GLabel 2500 3250 0    50   Output ~ 0
+BDIR
+Text GLabel 2500 3350 0    50   Output ~ 0
+BC1
+Text GLabel 7100 2450 2    50   Input ~ 0
+DA4
+Text GLabel 7100 2600 2    50   Input ~ 0
+DA5
+Text GLabel 7100 2750 2    50   Input ~ 0
+DA6
+Text GLabel 7100 2900 2    50   Input ~ 0
+DA7
+Text GLabel 7100 3050 2    50   Input ~ 0
+BC1
+Text GLabel 7100 3350 2    50   Input ~ 0
+BDIR
+Wire Wire Line
+	7800 3500 7800 3200
+$Comp
+L DL1XY_AUDIOCHIPS:YM2149 U?
+U 1 1 5E7F9386
+P 6300 2800
+F 0 "U?" H 6275 4539 50  0000 C CNN
+F 1 "YM2149" H 6275 4410 100 0000 C CNN
+F 2 "" H 6300 2150 50  0001 C CNN
+F 3 "" H 6300 2150 50  0001 C CNN
+	1    6300 2800
 	1    0    0    -1  
 $EndComp
-Connection ~ 7400 3800
 Wire Wire Line
-	7400 3500 7300 3500
-Connection ~ 7300 3500
+	7100 3200 7800 3200
 Wire Wire Line
-	7300 3500 7300 3200
+	7100 3800 7800 3800
+Wire Wire Line
+	7800 2900 7800 3000
+Connection ~ 7800 3200
+Wire Wire Line
+	7100 3500 7800 3500
+Wire Wire Line
+	7800 3800 7800 3650
+Connection ~ 7800 3500
+Wire Wire Line
+	7100 3650 7800 3650
+Connection ~ 7800 3650
+Wire Wire Line
+	7800 3650 7800 3500
+Connection ~ 7800 3000
+Wire Wire Line
+	7800 3000 7800 3200
+Text GLabel 5450 1700 0    50   Output ~ 0
+AUDIO_CH_B
+Text GLabel 5450 1850 0    50   Output ~ 0
+AUDIO_CH_A
+Text GLabel 7100 1700 2    50   Output ~ 0
+AUDIO_CH_C
+NoConn ~ 7100 1550
+NoConn ~ 5450 1550
+NoConn ~ 5450 2000
+NoConn ~ 5450 2150
+NoConn ~ 5450 2300
+NoConn ~ 5450 2450
+NoConn ~ 5450 2600
+NoConn ~ 5450 2750
+NoConn ~ 5450 2900
+NoConn ~ 5450 3050
+NoConn ~ 5450 3200
+NoConn ~ 5450 3350
+NoConn ~ 5450 3500
+NoConn ~ 5450 3650
+NoConn ~ 5450 3800
+NoConn ~ 5450 3950
+NoConn ~ 5450 4100
+NoConn ~ 5450 4250
+NoConn ~ 7100 4250
+Text GLabel 4100 3550 2    50   Output ~ 0
+RESET
+Text GLabel 7100 3950 2    50   Input ~ 0
+RESET
 $EndSCHEMATC
