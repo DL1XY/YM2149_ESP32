@@ -11,7 +11,6 @@
 #include "esp_log.h"
 #include "driver/ledc.h"
 #include "esp_err.h"
-#include "spi_74hc595.h"
 #include "driver/periph_ctrl.h"
 #include "driver/timer.h"
 
@@ -53,8 +52,7 @@ void YM2149_init()
 		 	 (1ULL<<YM2149_DA4_GPIO)	|
 		 	 (1ULL<<YM2149_DA5_GPIO)	|
 		 	 (1ULL<<YM2149_DA6_GPIO)	|
-		 	 (1ULL<<YM2149_DA7_GPIO)	|
-			 (1ULL<<SPI_74HC595_GPIO_OE)); // HACK to avoid Startup troubles
+		 	 (1ULL<<YM2149_DA7_GPIO));
 	 //disable pull-down mode
 	 io_conf.pull_down_en = 0;
 	 //disable pull-up mode
@@ -77,7 +75,6 @@ void YM2149_init()
 	 gpio_set_level(YM2149_DA6_GPIO, 0);
 	 gpio_set_level(YM2149_DA7_GPIO, 0);
 
-	 gpio_set_level(SPI_74HC595_GPIO_OE, 0);
 
 	 // Init PWM clock
 	 YM2149_init_pwm();
