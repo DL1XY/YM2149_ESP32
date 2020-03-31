@@ -5964,7 +5964,7 @@ U 1 1 5E83E0F3
 P 3800 4650
 F 0 "LS1" H 3970 4646 50  0000 L CNN
 F 1 "8 Ohm 1W" H 3970 4555 50  0000 L CNN
-F 2 "Connector_Audio:Jack_3.5mm_CUI_SJ1-3533NG_Horizontal" H 3800 4450 50  0001 C CNN
+F 2 "Connector_PinSocket_2.54mm:PinSocket_2x01_P2.54mm_Vertical" H 3800 4450 50  0001 C CNN
 F 3 "~" H 3790 4600 50  0001 C CNN
 	1    3800 4650
 	1    0    0    -1  
