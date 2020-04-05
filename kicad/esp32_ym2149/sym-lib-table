@@ -2,4 +2,5 @@
   (lib (name ESP32_Dev)(type Legacy)(uri E:/libs/ESP32-DEVKITC-32D/ESP32-DEVKITC-32D.lib)(options "")(descr ""))
   (lib (name DL1XY_AUDIOCHIPS)(type Legacy)(uri E:/libs/dl1xy_kicad/audiochips.lib)(options "")(descr ""))
   (lib (name MISC)(type Legacy)(uri E:/libs/kicad_libs/lm1086.lib)(options "")(descr ""))
+  (lib (name esp32_ym2149-rescue)(type Legacy)(uri ${KIPRJMOD}/esp32_ym2149-rescue.lib)(options "")(descr ""))
 )
