@@ -14,7 +14,7 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 
-#define DEBUG_OUTPUT 1
+#define DEBUG_OUTPUT 0
 
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
@@ -74,7 +74,7 @@
 #define YM2149_CMD_ID_SET_ENVELOPE_FREQ_ROUGH	8
 #define YM2149_CMD_ID_SET_ENVELOPE_SHAPE	9
 
-#define YM2149_TIMER_DIVIDER	1	// 80MHz / YM2149_CLOCK_DIVIDER = X MHz
+#define YM2149_TIMER_DIVIDER	80	// 80MHz / YM2149_CLOCK_DIVIDER = X MHz
 #define YM2149_TIMER_SCALE		(TIMER_BASE_CLK / YM2149_TIMER_DIVIDER)
 
 
@@ -173,11 +173,10 @@ typedef struct ym2149_command
 // init functions
 void YM2149_init();
 void YM2149_init_pwm();
-void YM2149_init_timer();
+void YM2149_init_timer_parameter(int timer_period_us);
 
 // ISR
-void IRAM_ATTR YM2149_isrHandler(void *pvParameter);
-void IRAM_ATTR YM2149_cmdHandler();
+void IRAM_ATTR YM2149_cmdHandler(void *pvParameter);
 
 
 void YM2149_reset();

@@ -19,12 +19,14 @@ static const char *TAG = "YM2149";
 volatile QueueHandle_t cmd_queue;
 
 
-volatile ym2149 ym2149_configuration;
-volatile ym219_register ym219_register_status;
-volatile ym2149_command current_command;
+ym2149 ym2149_configuration;
+ym219_register ym219_register_status;
+ym2149_command current_command;
 volatile uint8_t currentCmdState;
-volatile uint8_t lastCmdState;
+volatile  uint8_t lastCmdState;
 
+portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+static intr_handle_t s_timer_handle;
 
 void YM2149_init()
 {
@@ -78,7 +80,7 @@ void YM2149_init()
 
 	 // Init PWM clock
 	 YM2149_init_pwm();
-	 YM2149_init_timer();
+	 YM2149_init_timer_parameter(100);
 
 }
 
@@ -87,52 +89,51 @@ void YM2149_init_pwm()
 {
 	ESP_LOGE(TAG, "Init YM2149 PWM");
 	ledc_timer_config_t ledc_timer = {
-	    .speed_mode = LEDC_HIGH_SPEED_MODE,
-	    .timer_num  = LEDC_TIMER_0,
-	    .freq_hz    = 1000000
+
+		.speed_mode = LEDC_HIGH_SPEED_MODE,
+		.timer_num  = LEDC_TIMER_0,
+		.bit_num    = 2,
+		.freq_hz    = 1000000
 	};
 
 	ledc_channel_config_t ledc_channel = {
-	    .channel    = LEDC_CHANNEL_0,
-	    .gpio_num   = YM2149_CLOCK_GPIO,
-	    .speed_mode = LEDC_HIGH_SPEED_MODE,
-	    .timer_sel  = LEDC_TIMER_0,
-	    .duty       = 2
+		.channel    = LEDC_CHANNEL_0,
+		.gpio_num   = 15,
+		.speed_mode = LEDC_HIGH_SPEED_MODE,
+		.timer_sel  = LEDC_TIMER_0,
+		.duty       = 2
 	};
+
 	ledc_timer_config(&ledc_timer);
 	ledc_channel_config(&ledc_channel);
 }
 
-void YM2149_init_timer()
+
+void YM2149_init_timer_parameter(int timer_period_us)
 {
-	ESP_LOGE(TAG, "Init YM2149 Timer Scale:%d Divider:%d", YM2149_TIMER_SCALE, YM2149_TIMER_DIVIDER);
-	timer_config_t config;
-	config.divider = YM2149_TIMER_DIVIDER;
-	config.counter_dir = TIMER_COUNT_UP;
-	config.counter_en = TIMER_PAUSE;
-	config.alarm_en = TIMER_ALARM_EN;
-	config.intr_type = TIMER_INTR_LEVEL;
-	config.auto_reload = 1;
-	#ifdef TIMER_GROUP_SUPPORTS_XTAL_CLOCK
-	    config.clk_src = TIMER_SRC_CLK_APB;
-	#endif
+	 timer_config_t config = {
+	            .alarm_en = true,				//Alarm Enable
+	            .counter_en = false,			//If the counter is enabled it will start incrementing / decrementing immediately after calling timer_init()
+	            .intr_type = TIMER_INTR_LEVEL,	//Is interrupt is triggered on timer’s alarm (timer_intr_mode_t)
+	            .counter_dir = TIMER_COUNT_UP,	//Does counter increment or decrement (timer_count_dir_t)
+	            .auto_reload = true,			//If counter should auto_reload a specific initial value on the timer’s alarm, or continue incrementing or decrementing.
+	            .divider = 80   				//Divisor of the incoming 80 MHz (12.5nS) APB_CLK clock. E.g. 80 = 1uS per timer tick
+	    };
+
 	timer_init(TIMER_GROUP_0, TIMER_0, &config);
-
-	/* Timer's counter will initially start from value below.
-	   Also, if auto_reload is set, this value will be automatically reload on alarm */
-	timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0x00000000ULL);
-
-	/* Configure the alarm value and the interrupt on alarm. */
-	timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, 80); // Use YM2149_TIMER_SCALE to get 1sec delay
+	timer_set_counter_value(TIMER_GROUP_0, TIMER_0, 0);
+	timer_set_alarm_value(TIMER_GROUP_0, TIMER_0, timer_period_us);
 	timer_enable_intr(TIMER_GROUP_0, TIMER_0);
-	timer_isr_register(TIMER_GROUP_0, TIMER_0, YM2149_isrHandler, (void *) TIMER_0, ESP_INTR_FLAG_IRAM, NULL);
-	ESP_LOGE(TAG, "Init YM2149 Timer done, now start ...");
+	timer_isr_register(TIMER_GROUP_0, TIMER_0, &YM2149_cmdHandler, NULL, 0, &s_timer_handle);
+
 	timer_start(TIMER_GROUP_0, TIMER_0);
-	ESP_LOGE(TAG, "Init YM2149 Timer started");
 }
 
-void IRAM_ATTR YM2149_cmdHandler()
+void IRAM_ATTR YM2149_cmdHandler(void *pvParameter)
 {
+	TIMERG0.int_clr_timers.t0 = 1;
+	TIMERG0.hw_timer[0].config.alarm_en = 1;
+
 	switch (currentCmdState)
 	{
 		case YM2149_COMMAND_STATE_INIT:
@@ -159,9 +160,9 @@ void IRAM_ATTR YM2149_cmdHandler()
 		break;
 		case YM2149_COMMAND_STATE_ADDR_MODE:
 		{
-			gpio_set_level(YM2149_BC1_GPIO, 1);
-			gpio_set_level(YM2149_BCDIR_GPIO, 1);
+			ets_printf("CMD_ADDR\n");
 
+			// set DATA pins
 			gpio_set_level(YM2149_DA0_GPIO, (current_command.register_addr & (1 << 0)));
 			gpio_set_level(YM2149_DA1_GPIO, (current_command.register_addr & (1 << 1)));
 			gpio_set_level(YM2149_DA2_GPIO, (current_command.register_addr & (1 << 2)));
@@ -170,15 +171,19 @@ void IRAM_ATTR YM2149_cmdHandler()
 			gpio_set_level(YM2149_DA5_GPIO, 0);
 			gpio_set_level(YM2149_DA6_GPIO, 0);
 			gpio_set_level(YM2149_DA7_GPIO, 0);
+
+			// trigger ADDR mode
+			gpio_set_level(YM2149_BC1_GPIO, 1);
+			gpio_set_level(YM2149_BCDIR_GPIO, 1);
 			lastCmdState = currentCmdState;
 			currentCmdState = YM2149_COMMAND_STATE_WRITE_MODE;
 		}
 		break;
 		case YM2149_COMMAND_STATE_WRITE_MODE:
 		{
-			gpio_set_level(YM2149_BC1_GPIO, 0);
-			gpio_set_level(YM2149_BCDIR_GPIO, 1);
+			ets_printf("CMD_WRITE\n");
 
+			// set DATA pins
 			gpio_set_level(YM2149_DA0_GPIO, (current_command.register_value & (1 << 0)));
 			gpio_set_level(YM2149_DA1_GPIO, (current_command.register_value & (1 << 1)));
 			gpio_set_level(YM2149_DA2_GPIO, (current_command.register_value & (1 << 2)));
@@ -187,6 +192,11 @@ void IRAM_ATTR YM2149_cmdHandler()
 			gpio_set_level(YM2149_DA5_GPIO, (current_command.register_value & (1 << 5)));
 			gpio_set_level(YM2149_DA6_GPIO, (current_command.register_value & (1 << 6)));
 			gpio_set_level(YM2149_DA7_GPIO, (current_command.register_value & (1 << 7)));
+
+			// trigger WRITE REG
+			gpio_set_level(YM2149_BC1_GPIO, 0);
+			gpio_set_level(YM2149_BCDIR_GPIO, 1);
+
 			lastCmdState = currentCmdState;
 			currentCmdState = YM2149_COMMAND_STATE_IDLE;
 		}
@@ -206,17 +216,7 @@ void IRAM_ATTR YM2149_cmdHandler()
 		break;
 	}
 }
-void IRAM_ATTR YM2149_isrHandler(void *pvParameter)
-{
-	// ATTENTION: Don't print logs in ISR methods !!!
-	// @see https://esp32.com/viewtopic.php?t=3748
 
-	// Examples
-	// https://esp32developer.com/programming-in-c-c/timing/hardware-timers
-	YM2149_cmdHandler();
-
-	timer_group_enable_alarm_in_isr(TIMER_GROUP_0, TIMER_0);
-}
 
 void YM2149_reset()
 {
