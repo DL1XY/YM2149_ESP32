@@ -35,7 +35,7 @@ F 3 "~" H 4225 4700 50  0001 C CNN
 	1    4225 4700
 	1    0    0    -1  
 $EndComp
-Text GLabel 3750 2800 2    50   Output ~ 0
+Text GLabel 2150 2600 0    50   Output ~ 0
 CLOCK
 Text GLabel 7100 4100 2    50   Input ~ 0
 CLOCK
@@ -43,13 +43,13 @@ Text GLabel 7100 2300 2    50   Input ~ 0
 DA3
 Text GLabel 7100 2150 2    50   Input ~ 0
 DA2
-Text GLabel 3750 2300 2    50   Output ~ 0
-DA2
 Text GLabel 3750 2400 2    50   Output ~ 0
+DA2
+Text GLabel 3750 2300 2    50   Output ~ 0
 DA1
 Text GLabel 7100 2000 2    50   Input ~ 0
 DA1
-Text GLabel 3750 2500 2    50   Output ~ 0
+Text GLabel 3750 1700 2    50   Output ~ 0
 DA0
 Text GLabel 7100 1850 2    50   Input ~ 0
 DA0
@@ -59,11 +59,9 @@ Text GLabel 2150 2100 0    50   Output ~ 0
 DA6
 Text GLabel 2150 2200 0    50   Output ~ 0
 DA5
-Text GLabel 2150 2300 0    50   Output ~ 0
-DA4
-Text GLabel 2150 2400 0    50   Output ~ 0
+Text GLabel 2150 1800 0    50   Output ~ 0
 BDIR
-Text GLabel 2150 2600 0    50   Output ~ 0
+Text GLabel 2150 1900 0    50   Output ~ 0
 BC1
 Text GLabel 7100 2450 2    50   Input ~ 0
 DA4
@@ -103,7 +101,7 @@ NoConn ~ 5450 3950
 NoConn ~ 5450 4100
 NoConn ~ 5450 4250
 NoConn ~ 7100 4250
-Text GLabel 3750 2700 2    50   Output ~ 0
+Text GLabel 2150 2400 0    50   Output ~ 0
 RESET
 Text GLabel 7100 3950 2    50   Input ~ 0
 RESET
@@ -131,8 +129,6 @@ NoConn ~ 2150 2700
 NoConn ~ 2150 2800
 NoConn ~ 2150 2900
 NoConn ~ 2150 3000
-NoConn ~ 2150 1900
-NoConn ~ 2150 1800
 NoConn ~ 2150 1700
 NoConn ~ 2150 1600
 NoConn ~ 2150 1500
@@ -147,17 +143,6 @@ F 2 "" H 2150 900 50  0001 C CNN
 F 3 "" H 2150 900 50  0001 C CNN
 	1    2150 900 
 	-1   0    0    1   
-$EndComp
-$Comp
-L power:GNDREF #PWR0115
-U 1 1 5E8ACE17
-P 2150 2500
-F 0 "#PWR0115" H 2150 2250 50  0001 C CNN
-F 1 "GNDREF" V 2155 2372 50  0000 R CNN
-F 2 "" H 2150 2500 50  0001 C CNN
-F 3 "" H 2150 2500 50  0001 C CNN
-	1    2150 2500
-	0    1    1    0   
 $EndComp
 $Comp
 L power:GNDREF #PWR0117
@@ -188,20 +173,8 @@ Text GLabel 8200 1400 2    50   Input ~ 0
 +5V
 Text GLabel 1900 1200 0    50   Input ~ 0
 +3.3V
-Text GLabel 3750 1700 2    50   Output ~ 0
+Text GLabel 3750 2500 2    50   Output ~ 0
 DA3
-$Comp
-L ESP32_Dev:ESP32-DEVKITC-32D MCU1
-U 1 1 5E7F7B07
-P 2950 2100
-F 0 "MCU1" H 2950 3267 50  0000 C CNN
-F 1 "ESP32-DEVKITC-32D" H 2950 3176 50  0000 C CNN
-F 2 "ESP32_Dev:MODULE_ESP32-DEVKITC-32D" H 2950 2100 50  0001 L BNN
-F 3 "4" H 2950 2100 50  0001 L BNN
-F 4 "Espressif Systems" H 2950 2100 50  0001 L BNN "Feld4"
-	1    2950 2100
-	1    0    0    -1  
-$EndComp
 NoConn ~ 3750 1900
 NoConn ~ 2150 1300
 NoConn ~ 3750 1300
@@ -436,7 +409,7 @@ U 1 1 5EA68707
 P 6500 4925
 F 0 "BB_PWR1" H 6533 4900 50  0000 C CNN
 F 1 "BreadboardPowerSupply" H 6533 4809 50  0000 C CNN
-F 2 "dl1xy:Breadboard_Powersupply_3V3_5V" H 6500 4925 50  0001 C CNN
+F 2 "dl1xy:Breadboard_Powersupply_3V3_5V" H 6500 4925 50  0000 C CNN
 F 3 "" H 6500 4925 50  0001 C CNN
 	1    6500 4925
 	1    0    0    -1  
@@ -450,4 +423,31 @@ Wire Wire Line
 	6750 5625 7525 5625
 Wire Wire Line
 	6750 5275 7525 5275
+$Comp
+L ESP32_Dev:ESP32-DEVKITC-32D MCU1
+U 1 1 5E7F7B07
+P 2950 2100
+F 0 "MCU1" H 2950 3267 50  0000 C CNN
+F 1 "ESP32-DEVKITC-32D" H 2950 3176 50  0000 C CNN
+F 2 "dl1xy:ESP32-WROOM-Devkit" H 2950 2100 50  0001 L BNN
+F 3 "4" H 2950 2100 50  0001 L BNN
+F 4 "Espressif Systems" H 2950 2100 50  0001 L BNN "Feld4"
+	1    2950 2100
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GNDREF #PWR0115
+U 1 1 5E8ACE17
+P 2150 2500
+F 0 "#PWR0115" H 2150 2250 50  0001 C CNN
+F 1 "GNDREF" V 2155 2372 50  0000 R CNN
+F 2 "" H 2150 2500 50  0001 C CNN
+F 3 "" H 2150 2500 50  0001 C CNN
+	1    2150 2500
+	0    1    1    0   
+$EndComp
+Text GLabel 2150 2300 0    50   Output ~ 0
+DA4
+NoConn ~ 3750 2700
+NoConn ~ 3750 2800
 $EndSCHEMATC
