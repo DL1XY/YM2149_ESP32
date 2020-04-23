@@ -1,7 +1,7 @@
 # Yamaha YM2149 ESP32 Soundmodule
 
-## ATTENTION
-** DON'T FLASH THE ESP32 WHILE CONNECTED TO POWERSUPPLY ! THIS COULD DESTROY THE ESP32 ! JUST USE AN USB CABLE !**
+##_ATTENTION_
+**_DON'T FLASH THE ESP32 WHILE CONNECTED TO POWERSUPPLY ! THIS COULD DESTROY THE ESP32 ! JUST USE AN USB CABLE !_**
 
 ## Abstract
 This soundmodule enables YM2149 soundgeneration via a web interface in a dedicated WiFi Network or your existing WLAN. 
