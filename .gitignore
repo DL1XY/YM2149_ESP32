@@ -45,6 +45,9 @@ secrets.h
 *.idb
 *.pdb
 
+# zip
+*.zip
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd

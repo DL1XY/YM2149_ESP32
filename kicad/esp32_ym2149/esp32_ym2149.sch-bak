@@ -24,17 +24,6 @@ F 3 "" H 5450 1400 50  0001 C CNN
 	1    5450 1400
 	0    1    1    0   
 $EndComp
-$Comp
-L Device:C C3
-U 1 1 5E80C2AC
-P 4225 4700
-F 0 "C3" H 4340 4746 50  0000 L CNN
-F 1 "10nF" H 4340 4655 50  0000 L CNN
-F 2 "Capacitor_THT:C_Rect_L4.6mm_W3.0mm_P2.50mm_MKS02_FKP02" H 4263 4550 50  0001 C CNN
-F 3 "~" H 4225 4700 50  0001 C CNN
-	1    4225 4700
-	1    0    0    -1  
-$EndComp
 Text GLabel 2150 2600 0    50   Output ~ 0
 CLOCK
 Text GLabel 7100 4100 2    50   Input ~ 0
@@ -142,17 +131,6 @@ F 1 "GNDREF" H 2155 727 50  0000 C CNN
 F 2 "" H 2150 900 50  0001 C CNN
 F 3 "" H 2150 900 50  0001 C CNN
 	1    2150 900 
-	-1   0    0    1   
-$EndComp
-$Comp
-L power:GNDREF #PWR0117
-U 1 1 5E8B7CBE
-P 4225 4550
-F 0 "#PWR0117" H 4225 4300 50  0001 C CNN
-F 1 "GNDREF" H 4230 4377 50  0000 C CNN
-F 2 "" H 4225 4550 50  0001 C CNN
-F 3 "" H 4225 4550 50  0001 C CNN
-	1    4225 4550
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
@@ -351,13 +329,6 @@ Wire Wire Line
 	3975 5300 4125 5300
 Wire Wire Line
 	4125 5300 4125 5625
-Wire Wire Line
-	4225 4850 4225 4950
-Wire Wire Line
-	4225 4950 3975 4950
-Wire Wire Line
-	4325 4950 4225 4950
-Connection ~ 4225 4950
 $Comp
 L power:GNDREF #PWR03
 U 1 1 5EA4DA61
@@ -450,4 +421,6 @@ Text GLabel 2150 2300 0    50   Output ~ 0
 DA4
 NoConn ~ 3750 2700
 NoConn ~ 3750 2800
+Wire Wire Line
+	3975 4950 4325 4950
 $EndSCHEMATC
