@@ -423,4 +423,10 @@ NoConn ~ 3750 2700
 NoConn ~ 3750 2800
 Wire Wire Line
 	3975 4950 4325 4950
+Text Label 4600 4000 0    50   ~ 0
+RAWAUDIO
+Text Label 4375 5300 0    50   ~ 0
+RV_AUDIO
+Text Label 2425 4850 0    50   ~ 0
+AUDIO+
 $EndSCHEMATC

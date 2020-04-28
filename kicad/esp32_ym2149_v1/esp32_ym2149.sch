@@ -222,7 +222,7 @@ F 3 "" H 7000 5525 50  0001 C CNN
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	6750 5525 7000 5525
+	6750 5525 6875 5525
 Text GLabel 7525 5625 2    50   Output ~ 0
 +5V
 Text GLabel 7525 5275 2    50   Output ~ 0
@@ -232,12 +232,12 @@ Text GLabel 4325 4950 2    50   Input ~ 0
 $Comp
 L power:PWR_FLAG #FLG0103
 U 1 1 5E9F5625
-P 6875 5175
-F 0 "#FLG0103" H 6875 5250 50  0001 C CNN
-F 1 "PWR_FLAG" H 6875 5348 50  0000 C CNN
-F 2 "" H 6875 5175 50  0001 C CNN
-F 3 "~" H 6875 5175 50  0001 C CNN
-	1    6875 5175
+P 6875 5525
+F 0 "#FLG0103" H 6875 5600 50  0001 C CNN
+F 1 "PWR_FLAG" H 6875 5698 50  0000 C CNN
+F 2 "" H 6875 5525 50  0001 C CNN
+F 3 "~" H 6875 5525 50  0001 C CNN
+	1    6875 5525
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -378,18 +378,13 @@ $Comp
 L DL1XY_Misc:BreadboardPowerSupply BB_PWR1
 U 1 1 5EA68707
 P 6500 4925
-F 0 "BB_PWR1" H 6533 4900 50  0000 C CNN
-F 1 "BreadboardPowerSupply" H 6533 4809 50  0000 C CNN
-F 2 "dl1xy:Breadboard_Powersupply_3V3_5V" H 6500 4925 50  0000 C CNN
+F 0 "BB_PWR1" H 6533 4900 50  0000 C BNN
+F 1 "BreadboardPowerSupply" H 6533 4809 50  0000 C BNN
+F 2 "dl1xy:Breadboard_Powersupply_3V3_5V" H 6500 4925 50  0001 C CNN
 F 3 "" H 6500 4925 50  0001 C CNN
 	1    6500 4925
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	6750 5175 6875 5175
-Connection ~ 6875 5175
-Wire Wire Line
-	6875 5175 6975 5175
 Wire Wire Line
 	6750 5625 7525 5625
 Wire Wire Line
@@ -429,4 +424,9 @@ Text Label 4375 5300 0    50   ~ 0
 RV_AUDIO
 Text Label 2425 4850 0    50   ~ 0
 AUDIO+
+Wire Wire Line
+	6750 5175 6975 5175
+Connection ~ 6875 5525
+Wire Wire Line
+	6875 5525 7000 5525
 $EndSCHEMATC

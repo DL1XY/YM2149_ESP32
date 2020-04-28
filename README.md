@@ -21,6 +21,9 @@ The soundchip is controlled by an [Espressif ESP32](ttps://www.espressif.com/en/
 
 ## HW Revision 1.0
 
+### Schematic
+![V1 Schematic](desc/v1_schematic.png) <!-- .element height="10%" width="10%" -->
+
 ### Features
 - HW-104 (PAM8403) Amplifier Board
 - Breadboard Powersupply(3V3 and 5V) Board 
