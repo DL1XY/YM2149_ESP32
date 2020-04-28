@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name ESP32_Dev)(type KiCad)(uri E:/libs/ESP32-DEVKITC-32D)(options "")(descr ""))
+)
