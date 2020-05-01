@@ -13,58 +13,58 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text GLabel 8175 2625 0    50   Output ~ 0
+Text GLabel 8750 2725 0    50   Output ~ 0
 CLOCK
-Text GLabel 8175 2025 0    50   Output ~ 0
+Text GLabel 8750 2125 0    50   Output ~ 0
 DA7
-Text GLabel 8175 2125 0    50   Output ~ 0
+Text GLabel 8750 2225 0    50   Output ~ 0
 DA6
-Text GLabel 8175 2225 0    50   Output ~ 0
+Text GLabel 8750 2325 0    50   Output ~ 0
 DA5
-Text GLabel 8175 1825 0    50   Output ~ 0
+Text GLabel 8750 1925 0    50   Output ~ 0
 BDIR
-Text GLabel 8175 1925 0    50   Output ~ 0
+Text GLabel 8750 2025 0    50   Output ~ 0
 BC1
-Text GLabel 8175 2425 0    50   Output ~ 0
+Text GLabel 8750 2525 0    50   Output ~ 0
 RESET
-NoConn ~ 8175 2725
-NoConn ~ 8175 2825
-NoConn ~ 8175 2925
-NoConn ~ 8175 3025
-NoConn ~ 8175 1725
-NoConn ~ 8175 1625
-NoConn ~ 8175 1525
-NoConn ~ 8175 1425
+NoConn ~ 8750 2825
+NoConn ~ 8750 2925
+NoConn ~ 8750 3025
+NoConn ~ 8750 3125
+NoConn ~ 8750 1825
+NoConn ~ 8750 1725
+NoConn ~ 8750 1625
+NoConn ~ 8750 1525
 $Comp
 L power:GNDREF #PWR0114
 U 1 1 5E8AC02E
-P 8175 925
-F 0 "#PWR0114" H 8175 675 50  0001 C CNN
-F 1 "GNDREF" H 8180 752 50  0000 C CNN
-F 2 "" H 8175 925 50  0001 C CNN
-F 3 "" H 8175 925 50  0001 C CNN
-	1    8175 925 
+P 8750 1025
+F 0 "#PWR0114" H 8750 775 50  0001 C CNN
+F 1 "GNDREF" H 8755 852 50  0000 C CNN
+F 2 "" H 8750 1025 50  0001 C CNN
+F 3 "" H 8750 1025 50  0001 C CNN
+	1    8750 1025
 	-1   0    0    1   
 $EndComp
 $Comp
 L Device:C C2
 U 1 1 5E84B4EE
-P 8175 1075
-F 0 "C2" H 8290 1121 50  0000 L CNN
-F 1 "10nF" H 8290 1030 50  0000 L CNN
-F 2 "Capacitor_THT:C_Rect_L4.6mm_W3.0mm_P2.50mm_MKS02_FKP02" H 8213 925 50  0001 C CNN
-F 3 "~" H 8175 1075 50  0001 C CNN
-	1    8175 1075
+P 8750 1175
+F 0 "C2" H 8865 1221 50  0000 L CNN
+F 1 "10nF" H 8865 1130 50  0000 L CNN
+F 2 "Capacitor_THT:C_Rect_L4.6mm_W3.0mm_P2.50mm_MKS02_FKP02" H 8788 1025 50  0001 C CNN
+F 3 "~" H 8750 1175 50  0001 C CNN
+	1    8750 1175
 	1    0    0    -1  
 $EndComp
-Text GLabel 7925 1225 0    50   Input ~ 0
+Text GLabel 8500 1325 0    50   Input ~ 0
 +3.3V
-NoConn ~ 8175 1325
-Connection ~ 8175 1225
+NoConn ~ 8750 1425
+Connection ~ 8750 1325
 Wire Wire Line
-	8175 1225 8275 1225
+	8750 1325 8850 1325
 Wire Wire Line
-	7925 1225 8175 1225
+	8500 1325 8750 1325
 $Comp
 L Connector:AudioJack3 J7
 U 1 1 5EA1A4BD
@@ -79,15 +79,15 @@ $EndComp
 $Comp
 L power:GNDREF #PWR0115
 U 1 1 5E8ACE17
-P 8175 2525
-F 0 "#PWR0115" H 8175 2275 50  0001 C CNN
-F 1 "GNDREF" V 8180 2397 50  0000 R CNN
-F 2 "" H 8175 2525 50  0001 C CNN
-F 3 "" H 8175 2525 50  0001 C CNN
-	1    8175 2525
+P 8750 2625
+F 0 "#PWR0115" H 8750 2375 50  0001 C CNN
+F 1 "GNDREF" V 8755 2497 50  0000 R CNN
+F 2 "" H 8750 2625 50  0001 C CNN
+F 3 "" H 8750 2625 50  0001 C CNN
+	1    8750 2625
 	0    1    1    0   
 $EndComp
-Text GLabel 8175 2325 0    50   Output ~ 0
+Text GLabel 8750 2425 0    50   Output ~ 0
 DA4
 $Comp
 L Amplifier_Audio:LM386 U1
@@ -343,18 +343,18 @@ F 3 "http://www.advanced-monolithic.com/pdf/ds1117.pdf" H 3925 6475 50  0001 C C
 	1    3825 6725
 	1    0    0    -1  
 $EndComp
-NoConn ~ 9775 2825
-NoConn ~ 9775 2725
+NoConn ~ 10350 2925
+NoConn ~ 10350 2825
 $Comp
 L ESP32_Dev:ESP32-DEVKITC-32D MCU1
 U 1 1 5E7F7B07
-P 8975 2125
-F 0 "MCU1" H 8975 3292 50  0000 C CNN
-F 1 "ESP32-DEVKITC-32D" H 8975 3201 50  0000 C CNN
-F 2 "dl1xy:ESP32-WROOM-Devkit" H 8975 2125 50  0001 L BNN
-F 3 "4" H 8975 2125 50  0001 L BNN
-F 4 "Espressif Systems" H 8975 2125 50  0001 L BNN "Feld4"
-	1    8975 2125
+P 9550 2225
+F 0 "MCU1" H 9550 3392 50  0000 C CNN
+F 1 "ESP32-DEVKITC-32D" H 9550 3301 50  0000 C CNN
+F 2 "dl1xy:ESP32-WROOM-Devkit" H 9550 2225 50  0001 L BNN
+F 3 "4" H 9550 2225 50  0001 L BNN
+F 4 "Espressif Systems" H 9550 2225 50  0001 L BNN "Feld4"
+	1    9550 2225
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -404,34 +404,32 @@ Wire Wire Line
 	4050 3475 4750 3475
 Wire Wire Line
 	4050 3625 4750 3625
-NoConn ~ 9775 1825
-NoConn ~ 9775 1325
-NoConn ~ 9775 1925
-Text GLabel 9775 2525 2    50   Output ~ 0
+NoConn ~ 10350 1925
+NoConn ~ 10350 1425
+Text GLabel 10350 2625 2    50   Output ~ 0
 DA3
 Text GLabel 5150 1225 2    50   Input ~ 0
 +5V
 Connection ~ 4750 3025
 Wire Wire Line
 	4750 1225 4750 3025
-NoConn ~ 9775 1625
-NoConn ~ 9775 1525
-NoConn ~ 9775 1425
-NoConn ~ 9775 2025
-NoConn ~ 9775 2125
-NoConn ~ 9775 2225
-NoConn ~ 9775 2625
-NoConn ~ 9775 2925
-NoConn ~ 9775 3025
+NoConn ~ 10350 1725
+NoConn ~ 10350 1625
+NoConn ~ 10350 1525
+NoConn ~ 10350 2225
+NoConn ~ 10350 2325
+NoConn ~ 10350 2725
+NoConn ~ 10350 3025
+NoConn ~ 10350 3125
 $Comp
 L power:GNDREF #PWR0105
 U 1 1 5E825A22
-P 9775 1225
-F 0 "#PWR0105" H 9775 975 50  0001 C CNN
-F 1 "GNDREF" H 9780 1052 50  0000 C CNN
-F 2 "" H 9775 1225 50  0001 C CNN
-F 3 "" H 9775 1225 50  0001 C CNN
-	1    9775 1225
+P 10350 1325
+F 0 "#PWR0105" H 10350 1075 50  0001 C CNN
+F 1 "GNDREF" H 10355 1152 50  0000 C CNN
+F 2 "" H 10350 1325 50  0001 C CNN
+F 3 "" H 10350 1325 50  0001 C CNN
+	1    10350 1325
 	0    -1   -1   0   
 $EndComp
 Text GLabel 4050 3775 2    50   Input ~ 0
@@ -476,13 +474,13 @@ Text GLabel 4050 2275 2    50   Input ~ 0
 DA4
 Text GLabel 4050 1675 2    50   Input ~ 0
 DA0
-Text GLabel 9775 1725 2    50   Output ~ 0
+Text GLabel 10350 1825 2    50   Output ~ 0
 DA0
 Text GLabel 4050 1825 2    50   Input ~ 0
 DA1
-Text GLabel 9775 2325 2    50   Output ~ 0
+Text GLabel 10350 2425 2    50   Output ~ 0
 DA1
-Text GLabel 9775 2425 2    50   Output ~ 0
+Text GLabel 10350 2525 2    50   Output ~ 0
 DA2
 Text GLabel 4050 1975 2    50   Input ~ 0
 DA2
@@ -753,7 +751,7 @@ Wire Notes Line
 Wire Notes Line
 	1100 625  5750 625 
 Wire Notes Line
-	5750 625  5750 5125
+	7000 825  7000 5325
 Wire Notes Line
 	5750 5125 1100 5125
 Text Notes 1150 725  0    50   ~ 0
@@ -764,4 +762,25 @@ Text Notes 7000 725  0    50   ~ 0
 ESP32 DEVKIT
 Text Notes 7025 3875 0    50   ~ 0
 AUDIO AMPLIFIER
+$Comp
+L Jumper:Jumper_3_Open JP?
+U 1 1 5EAC2A1E
+P 7650 2700
+F 0 "JP?" H 7650 2924 50  0000 C CNN
+F 1 "WiFi Config" H 7650 2833 50  0000 C CNN
+F 2 "" H 7650 2700 50  0001 C CNN
+F 3 "~" H 7650 2700 50  0001 C CNN
+	1    7650 2700
+	1    0    0    -1  
+$EndComp
+Text GLabel 7900 2700 2    50   Output ~ 0
+AP
+Text GLabel 7400 2700 0    50   Output ~ 0
+WLAN
+Text GLabel 7650 2850 3    50   Input ~ 0
++3.3V
+Text GLabel 10350 2125 2    50   Input ~ 0
+WLAN
+Text GLabel 10350 2025 2    50   Input ~ 0
+AP
 $EndSCHEMATC
